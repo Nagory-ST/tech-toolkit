@@ -206,6 +206,48 @@
         </Grid>
       </TabItem>
 
+      <!-- ===================== PILOTES ===================== -->
+      <TabItem Header="Pilotes">
+        <DockPanel Margin="0,10,0,0">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button x:Name="BtnDrvScan" Style="{StaticResource BtnAccent}" Content="Analyser le poste" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvInstall" Style="{StaticResource Btn}" Content="Installer la sélection (Windows Update)" IsEnabled="False" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvFromKey" Style="{StaticResource Btn}" Content="Installer depuis un dossier..." Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvExport" Style="{StaticResource Btn}" Content="Exporter les pilotes du poste" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvSdio" Style="{StaticResource Btn}" Content="Snappy Driver Installer" Margin="0,0,8,0"/>
+          </StackPanel>
+          <Border DockPanel.Dock="Top" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+            <DockPanel>
+              <Button x:Name="BtnDrvOem" DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Site du constructeur" IsEnabled="False" Margin="8,0,0,0"/>
+              <TextBlock x:Name="TxtDrvOem" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#C9D1D9" Text="Lance l'analyse pour identifier le poste et ses pilotes."/>
+            </DockPanel>
+          </Border>
+          <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="0,6,0,0"
+                     Text="Sélectionne les lignes Windows Update (Ctrl / Maj + clic) puis « Installer la sélection ». Double-clic sur un périphérique en erreur : recherche de son identifiant matériel dans le Catalogue Microsoft Update. « Installer depuis un dossier » (pnputil) n'installe que les pilotes qui correspondent au matériel du poste."/>
+          <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
+            <DataGrid x:Name="GridDrv" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Extended"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262D"
+                      Background="Transparent" RowBackground="#161B22" AlternatingRowBackground="#121821"
+                      Foreground="#C9D1D9" BorderThickness="0">
+              <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Source}" Value="Problème"><Setter Property="Foreground" Value="#F85149"/></DataTrigger>
+                    <DataTrigger Binding="{Binding Source}" Value="Windows Update"><Setter Property="Foreground" Value="#58A6FF"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </DataGrid.RowStyle>
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120"/>
+                <DataGridTextColumn Header="Périphérique / pilote" Binding="{Binding Peripherique}" Width="*"/>
+                <DataGridTextColumn Header="Date / état" Binding="{Binding Version}" Width="100"/>
+                <DataGridTextColumn Header="Détail" Binding="{Binding Detail}" Width="*"/>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+        </DockPanel>
+      </TabItem>
+
       <!-- ===================== CREER MA CLE ===================== -->
       <TabItem Header="Créer ma clé">
         <Grid Margin="0,10,0,0">

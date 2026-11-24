@@ -198,6 +198,61 @@ if ($sync.Mode -eq 'USB' -and $sync.PortableTools.Count) {
     $sync.TxtToolsInfo.Text = 'Disponible quand Tech Toolkit est lancé depuis la clé USB (START.bat sur la partition TOOLS).'
 }
 
+# --- Onglet Pilotes ---
+$sync.BtnDrvScan.Add_Click({
+    $sync.GridDrv.ItemsSource = $null
+    $sync.BtnDrvInstall.IsEnabled = $false
+    Start-TKJob -Name 'Analyse des pilotes' -ScriptBlock { Invoke-TKDriverScan } -OnDone {
+        param($r)
+        $res = @($r) | Where-Object { $_.Oem } | Select-Object -Last 1
+        if (-not $res) { Write-TKLog 'Analyse des pilotes interrompue.' 'ERR'; return }
+        $sync.DriverScan = $res
+        $order = @{ 'Problème' = 0; 'Windows Update' = 1 }
+        $sync.GridDrv.ItemsSource = @($res.Rows | Sort-Object { $order[$_.Source] }, Peripherique)
+        $nWU = @($res.Rows | Where-Object Source -eq 'Windows Update').Count
+        $nKO = @($res.Rows | Where-Object Source -eq 'Problème').Count
+        $sync.BtnDrvInstall.IsEnabled = ($nWU -gt 0)
+        $o = $res.Oem
+        $txt = "$($o.Fabricant) $($o.Modele)  |  S/N : $($o.Serie)  |  $nKO périphérique(s) en erreur, $nWU pilote(s) Windows Update"
+        if ($o.Outil) { $txt += "`nOutil constructeur recommandé : $($o.Outil)" }
+        $sync.TxtDrvOem.Text = $txt
+        $sync.BtnDrvOem.IsEnabled = [bool]$o.Page
+        if (-not $res.Rows.Count) { Write-TKLog 'Pilotes : aucun périphérique en erreur, rien à mettre à jour sur Windows Update.' 'OK' }
+    }
+})
+$sync.BtnDrvInstall.Add_Click({
+    $sel = @($sync.GridDrv.SelectedItems | Where-Object { $_.Source -eq 'Windows Update' })
+    if (-not $sel.Count) { Write-TKLog 'Sélectionne au moins une ligne Windows Update.' 'WARN'; return }
+    $msg = "Installer $($sel.Count) pilote(s) depuis Windows Update ?`n`n" + (($sel | Select-Object -First 8 | ForEach-Object { "- $($_.Peripherique)" }) -join "`n") +
+           $(if ($sel.Count -gt 8) { "`n..." } else { '' }) + "`n`nUn point de restauration sera créé avant."
+    if ([System.Windows.MessageBox]::Show($msg, 'Tech Toolkit', 'YesNo', 'Question') -ne 'Yes') { return }
+    Start-TKJob -Name 'Installation des pilotes' -ScriptBlock { param($Ids) Install-TKWUDrivers -Ids $Ids -RestorePoint $true } `
+        -Arguments @{ Ids = @($sel | ForEach-Object { $_.UpdateID }) } -OnDone { $sync.BtnDrvInstall.IsEnabled = $false; Write-TKLog 'Relance l''analyse du poste pour vérifier.' 'INFO' }
+})
+$sync.GridDrv.Add_MouseDoubleClick({
+    $row = $sync.GridDrv.SelectedItem
+    if ($row -and $row.HWID) { Start-Process ('https://www.catalog.update.microsoft.com/Search.aspx?q=' + [uri]::EscapeDataString($row.HWID)) }
+})
+$sync.BtnDrvOem.Add_Click({ if ($sync.DriverScan.Oem.Page) { Start-Process $sync.DriverScan.Oem.Page } })
+$sync.BtnDrvFromKey.Add_Click({
+    $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dlg.Description = 'Dossier de pilotes (.inf) : export d''un poste identique, pack constructeur décompressé...'
+    $def = if ($sync.Mode -eq 'USB') { Join-Path $sync.Root 'Drivers\Exports' } else { [Environment]::GetFolderPath('MyDocuments') }
+    if (Test-Path -LiteralPath $def) { $dlg.SelectedPath = $def }
+    if ($dlg.ShowDialog() -ne 'OK') { return }
+    Start-TKJob -Name 'Pilotes depuis un dossier' -ScriptBlock { param($Path) Install-TKDriversFromFolder -Path $Path } -Arguments @{ Path = $dlg.SelectedPath }
+})
+$sync.BtnDrvExport.Add_Click({ Start-TKJob -Name 'Export des pilotes' -ScriptBlock { Export-TKDrivers } })
+$sync.BtnDrvSdio.Add_Click({
+    $sdio = if ($sync.Root) { Join-Path $sync.Root 'Drivers\SDIO\SDIO_x64.exe' } else { $null }
+    if ($sdio -and (Test-Path -LiteralPath $sdio)) { Start-Process -FilePath $sdio -WorkingDirectory (Split-Path $sdio) }
+    else {
+        if ([System.Windows.MessageBox]::Show("Snappy Driver Installer Origin n'est pas sur la clé (Drivers\SDIO\SDIO_x64.exe).`n`nOuvrir sa page de téléchargement ?", 'Tech Toolkit', 'YesNo', 'Information') -eq 'Yes') {
+            Start-Process 'https://www.glenn.delahoy.com/snappy-driver-installer-origin/'
+        }
+    }
+})
+
 # --- Onglet Creer ma cle ---
 $sync.UsbChecks = @{}
 $usbGroups = New-Object System.Collections.Generic.List[string]
@@ -316,7 +371,7 @@ Update-TKUsbSize
 Update-TKUsbDisks
 
 # --- Boucle UI : journal, statut, fin des taches ---
-$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh)
+$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh, $sync.BtnDrvScan, $sync.BtnDrvFromKey, $sync.BtnDrvExport)
 $timer = New-Object System.Windows.Threading.DispatcherTimer
 $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({

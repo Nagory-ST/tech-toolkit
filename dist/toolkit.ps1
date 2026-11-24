@@ -671,6 +671,48 @@ $inputXML = @'
         </Grid>
       </TabItem>
 
+      <!-- ===================== PILOTES ===================== -->
+      <TabItem Header="Pilotes">
+        <DockPanel Margin="0,10,0,0">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button x:Name="BtnDrvScan" Style="{StaticResource BtnAccent}" Content="Analyser le poste" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvInstall" Style="{StaticResource Btn}" Content="Installer la s&#x00E9;lection (Windows Update)" IsEnabled="False" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvFromKey" Style="{StaticResource Btn}" Content="Installer depuis un dossier..." Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvExport" Style="{StaticResource Btn}" Content="Exporter les pilotes du poste" Margin="0,0,8,0"/>
+            <Button x:Name="BtnDrvSdio" Style="{StaticResource Btn}" Content="Snappy Driver Installer" Margin="0,0,8,0"/>
+          </StackPanel>
+          <Border DockPanel.Dock="Top" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,8">
+            <DockPanel>
+              <Button x:Name="BtnDrvOem" DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Site du constructeur" IsEnabled="False" Margin="8,0,0,0"/>
+              <TextBlock x:Name="TxtDrvOem" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#C9D1D9" Text="Lance l'analyse pour identifier le poste et ses pilotes."/>
+            </DockPanel>
+          </Border>
+          <TextBlock DockPanel.Dock="Bottom" TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="0,6,0,0"
+                     Text="S&#x00E9;lectionne les lignes Windows Update (Ctrl / Maj + clic) puis &#x00AB; Installer la s&#x00E9;lection &#x00BB;. Double-clic sur un p&#x00E9;riph&#x00E9;rique en erreur : recherche de son identifiant mat&#x00E9;riel dans le Catalogue Microsoft Update. &#x00AB; Installer depuis un dossier &#x00BB; (pnputil) n'installe que les pilotes qui correspondent au mat&#x00E9;riel du poste."/>
+          <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
+            <DataGrid x:Name="GridDrv" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Extended"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262D"
+                      Background="Transparent" RowBackground="#161B22" AlternatingRowBackground="#121821"
+                      Foreground="#C9D1D9" BorderThickness="0">
+              <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Source}" Value="Probl&#x00E8;me"><Setter Property="Foreground" Value="#F85149"/></DataTrigger>
+                    <DataTrigger Binding="{Binding Source}" Value="Windows Update"><Setter Property="Foreground" Value="#58A6FF"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </DataGrid.RowStyle>
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120"/>
+                <DataGridTextColumn Header="P&#x00E9;riph&#x00E9;rique / pilote" Binding="{Binding Peripherique}" Width="*"/>
+                <DataGridTextColumn Header="Date / &#x00E9;tat" Binding="{Binding Version}" Width="100"/>
+                <DataGridTextColumn Header="D&#x00E9;tail" Binding="{Binding Detail}" Width="*"/>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+        </DockPanel>
+      </TabItem>
+
       <!-- ===================== CREER MA CLE ===================== -->
       <TabItem Header="Cr&#x00E9;er ma cl&#x00E9;">
         <Grid Margin="0,10,0,0">
@@ -1161,6 +1203,128 @@ function New-TKRestorePoint {
         if ($null -ne $old) { Set-ItemProperty -Path $key -Name SystemRestorePointCreationFrequency -Value $old -Type DWord }
         else { Remove-ItemProperty -Path $key -Name SystemRestorePointCreationFrequency -ErrorAction SilentlyContinue }
     }
+}
+# ---------------------------------------------------------------- Drivers.ps1
+################################################################################
+#  Pilotes : analyse, Windows Update, pilotes de la cle, export
+################################################################################
+
+function Get-TKOemInfo {
+    $cs   = Get-CimInstance Win32_ComputerSystem
+    $bios = Get-CimInstance Win32_BIOS
+    $maker = "$($cs.Manufacturer)".Trim()
+    $oem = switch -Regex ($maker) {
+        'Dell'            { @{ Nom = 'Dell';    Outil = 'Dell Command | Update';  Page = 'https://www.dell.com/support/home/fr-fr' } }
+        'Lenovo'          { @{ Nom = 'Lenovo';  Outil = 'Lenovo System Update / Commercial Vantage'; Page = 'https://pcsupport.lenovo.com/fr/fr' } }
+        'HP|Hewlett'      { @{ Nom = 'HP';      Outil = 'HP Image Assistant / HP Support Assistant'; Page = 'https://support.hp.com/fr-fr/drivers' } }
+        'ASUS'            { @{ Nom = 'ASUS';    Outil = 'MyASUS';                 Page = 'https://www.asus.com/fr/support/' } }
+        'Acer'            { @{ Nom = 'Acer';    Outil = 'Acer Care Center';       Page = 'https://www.acer.com/fr-fr/support/drivers-and-manuals' } }
+        'Microsoft'       { @{ Nom = 'Microsoft'; Outil = 'Windows Update';       Page = 'https://support.microsoft.com/fr-fr/surface' } }
+        default           { @{ Nom = $maker;    Outil = $null;                    Page = $null } }
+    }
+    [pscustomobject]@{
+        Fabricant = $maker
+        Modele    = "$($cs.Model)".Trim()
+        Serie     = "$($bios.SerialNumber)".Trim()
+        Outil     = $oem.Outil
+        Page      = $oem.Page
+    }
+}
+
+function Invoke-TKDriverScan {
+    <# Tache de fond : peripheriques en erreur + pilotes proposes par Windows Update #>
+    $rows = New-Object System.Collections.Generic.List[object]
+    $codes = @{ 1 = 'mal configuré'; 3 = 'pilote corrompu'; 10 = 'ne peut pas démarrer'; 18 = 'à réinstaller'; 22 = 'désactivé';
+                24 = 'absent ou mal installé'; 28 = 'AUCUN PILOTE'; 31 = 'ne fonctionne pas correctement'; 39 = 'pilote corrompu ou manquant';
+                43 = 'arrêté (problème signalé)'; 45 = 'non connecté' }
+
+    Set-TKStatus 'Pilotes : périphériques en erreur...'
+    $bad = @(Get-CimInstance Win32_PnPEntity | Where-Object { $_.ConfigManagerErrorCode -and $_.ConfigManagerErrorCode -notin 22, 45 })
+    foreach ($d in $bad) {
+        $hwid = @($d.HardwareID) | Select-Object -First 1
+        $txt = if ($codes.ContainsKey([int]$d.ConfigManagerErrorCode)) { $codes[[int]$d.ConfigManagerErrorCode] } else { "code $($d.ConfigManagerErrorCode)" }
+        $rows.Add([pscustomobject]@{
+            Source = 'Problème'; Peripherique = $(if ($d.Name) { $d.Name } else { $d.PNPClass }); Version = "code $($d.ConfigManagerErrorCode)"
+            Detail = "$txt  -  $hwid"; UpdateID = $null; HWID = $hwid; Taille = $null })
+    }
+    Write-TKLog ("Pilotes : {0} périphérique(s) en erreur." -f $bad.Count) $(if ($bad.Count) { 'WARN' } else { 'OK' })
+
+    Set-TKStatus 'Pilotes : recherche sur Windows Update (1 à 3 min)...'
+    try {
+        $session = New-Object -ComObject Microsoft.Update.Session
+        $searcher = $session.CreateUpdateSearcher()
+        $searcher.ServerSelection = 2      # Windows Update directement (meme si le poste est gere par WSUS)
+        $res = $searcher.Search("IsInstalled=0 and Type='Driver' and IsHidden=0")
+        foreach ($u in $res.Updates) {
+            $date = try { ([datetime]$u.DriverVerDate).ToString('dd/MM/yyyy') } catch { '' }
+            $rows.Add([pscustomobject]@{
+                Source = 'Windows Update'; Peripherique = $u.Title; Version = $date
+                Detail = ("{0}  -  {1}  -  {2:N1} Mo" -f $u.DriverClass, $u.DriverManufacturer, ($u.MaxDownloadSize / 1MB))
+                UpdateID = $u.Identity.UpdateID; HWID = $u.DriverHardwareID; Taille = $u.MaxDownloadSize })
+        }
+        Write-TKLog ("Pilotes : {0} mise(s) à jour proposée(s) par Windows Update." -f $res.Updates.Count) 'OK'
+    } catch {
+        Write-TKLog "Windows Update inaccessible : $($_.Exception.Message)" 'WARN'
+    }
+
+    [pscustomobject]@{ Rows = $rows.ToArray(); Oem = Get-TKOemInfo }
+}
+
+function Install-TKWUDrivers {
+    <# Tache de fond : telecharge et installe les pilotes Windows Update selectionnes #>
+    param([string[]]$Ids, [bool]$RestorePoint)
+    if ($RestorePoint) { Set-TKStatus 'Point de restauration...'; New-TKRestorePoint }
+    $session = New-Object -ComObject Microsoft.Update.Session
+    $searcher = $session.CreateUpdateSearcher()
+    $searcher.ServerSelection = 2
+    Set-TKStatus 'Pilotes : préparation...'
+    $res = $searcher.Search("IsInstalled=0 and Type='Driver' and IsHidden=0")
+    $coll = New-Object -ComObject Microsoft.Update.UpdateColl
+    foreach ($u in $res.Updates) {
+        if ($Ids -contains $u.Identity.UpdateID) {
+            if (-not $u.EulaAccepted) { $u.AcceptEula() }
+            [void]$coll.Add($u)
+        }
+    }
+    if ($coll.Count -eq 0) { Write-TKLog 'Les pilotes sélectionnés ne sont plus proposés (déjà installés ?).' 'WARN'; return }
+
+    Set-TKStatus ("Pilotes : téléchargement de {0} pilote(s)..." -f $coll.Count)
+    $dl = $session.CreateUpdateDownloader(); $dl.Updates = $coll
+    [void]$dl.Download()
+    Set-TKStatus ("Pilotes : installation de {0} pilote(s)..." -f $coll.Count)
+    $inst = $session.CreateUpdateInstaller(); $inst.Updates = $coll
+    $r = $inst.Install()
+    $label = @{ 2 = 'OK'; 3 = 'OK (avec avertissements)'; 4 = 'ÉCHEC'; 5 = 'annulé' }
+    for ($i = 0; $i -lt $coll.Count; $i++) {
+        $code = $r.GetUpdateResult($i).ResultCode
+        $lvl = if ($code -in 2, 3) { 'OK' } else { 'ERR' }
+        Write-TKLog ("{0} : {1}" -f $coll.Item($i).Title, $(if ($label.ContainsKey([int]$code)) { $label[[int]$code] } else { "code $code" })) $lvl
+    }
+    if ($r.RebootRequired) { Write-TKLog 'Redémarrage nécessaire pour finaliser les pilotes.' 'WARN' }
+}
+
+function Install-TKDriversFromFolder {
+    <# Tache de fond : pnputil installe seulement les pilotes qui correspondent au materiel #>
+    param([string]$Path)
+    Set-TKStatus "Pilotes : installation depuis $Path..."
+    $out = & pnputil.exe /add-driver "$Path\*.inf" /subdirs /install 2>&1 | Out-String
+    $added = ([regex]::Matches($out, '(?im)(Added driver packages|Packages de pilotes ajout[ée]s)\s*:\s*(\d+)') | Select-Object -Last 1)
+    $n = if ($added) { $added.Groups[2].Value } else { '?' }
+    Write-TKLog "pnputil : $n paquet(s) de pilotes ajouté(s) depuis $Path (seuls ceux qui correspondent au matériel sont installés)." 'OK'
+    if ($out -match '(?i)reboot|redémarr') { Write-TKLog 'Redémarrage nécessaire pour finaliser les pilotes.' 'WARN' }
+}
+
+function Export-TKDrivers {
+    <# Tache de fond : sauvegarde des pilotes tiers du poste (avant reinstallation) #>
+    $cs = Get-CimInstance Win32_ComputerSystem
+    $name = ('{0}-{1}' -f "$($cs.Manufacturer)".Trim(), "$($cs.Model)".Trim()) -replace '[\\/:*?"<>|]', ''
+    $dest = Join-Path (Get-TKCollectePath) "Drivers\$name"
+    New-Item -ItemType Directory -Path $dest -Force | Out-Null
+    Set-TKStatus 'Pilotes : export...'
+    & pnputil.exe /export-driver * "$dest" | Out-Null
+    $count = @(Get-ChildItem -LiteralPath $dest -Directory).Count
+    Write-TKLog "Pilotes exportés : $count paquet(s) dans $dest" 'OK'
+    if ($sync.Mode -eq 'USB') { Write-TKLog 'Pour les réutiliser depuis la clé : déverrouille TOOLS et déplace ce dossier dans Drivers\Exports.' 'INFO' }
 }
 # ---------------------------------------------------------------- Tweaks.ps1
 function Get-TKState {
@@ -1856,6 +2020,61 @@ if ($sync.Mode -eq 'USB' -and $sync.PortableTools.Count) {
     $sync.TxtToolsInfo.Text = 'Disponible quand Tech Toolkit est lancé depuis la clé USB (START.bat sur la partition TOOLS).'
 }
 
+# --- Onglet Pilotes ---
+$sync.BtnDrvScan.Add_Click({
+    $sync.GridDrv.ItemsSource = $null
+    $sync.BtnDrvInstall.IsEnabled = $false
+    Start-TKJob -Name 'Analyse des pilotes' -ScriptBlock { Invoke-TKDriverScan } -OnDone {
+        param($r)
+        $res = @($r) | Where-Object { $_.Oem } | Select-Object -Last 1
+        if (-not $res) { Write-TKLog 'Analyse des pilotes interrompue.' 'ERR'; return }
+        $sync.DriverScan = $res
+        $order = @{ 'Problème' = 0; 'Windows Update' = 1 }
+        $sync.GridDrv.ItemsSource = @($res.Rows | Sort-Object { $order[$_.Source] }, Peripherique)
+        $nWU = @($res.Rows | Where-Object Source -eq 'Windows Update').Count
+        $nKO = @($res.Rows | Where-Object Source -eq 'Problème').Count
+        $sync.BtnDrvInstall.IsEnabled = ($nWU -gt 0)
+        $o = $res.Oem
+        $txt = "$($o.Fabricant) $($o.Modele)  |  S/N : $($o.Serie)  |  $nKO périphérique(s) en erreur, $nWU pilote(s) Windows Update"
+        if ($o.Outil) { $txt += "`nOutil constructeur recommandé : $($o.Outil)" }
+        $sync.TxtDrvOem.Text = $txt
+        $sync.BtnDrvOem.IsEnabled = [bool]$o.Page
+        if (-not $res.Rows.Count) { Write-TKLog 'Pilotes : aucun périphérique en erreur, rien à mettre à jour sur Windows Update.' 'OK' }
+    }
+})
+$sync.BtnDrvInstall.Add_Click({
+    $sel = @($sync.GridDrv.SelectedItems | Where-Object { $_.Source -eq 'Windows Update' })
+    if (-not $sel.Count) { Write-TKLog 'Sélectionne au moins une ligne Windows Update.' 'WARN'; return }
+    $msg = "Installer $($sel.Count) pilote(s) depuis Windows Update ?`n`n" + (($sel | Select-Object -First 8 | ForEach-Object { "- $($_.Peripherique)" }) -join "`n") +
+           $(if ($sel.Count -gt 8) { "`n..." } else { '' }) + "`n`nUn point de restauration sera créé avant."
+    if ([System.Windows.MessageBox]::Show($msg, 'Tech Toolkit', 'YesNo', 'Question') -ne 'Yes') { return }
+    Start-TKJob -Name 'Installation des pilotes' -ScriptBlock { param($Ids) Install-TKWUDrivers -Ids $Ids -RestorePoint $true } `
+        -Arguments @{ Ids = @($sel | ForEach-Object { $_.UpdateID }) } -OnDone { $sync.BtnDrvInstall.IsEnabled = $false; Write-TKLog 'Relance l''analyse du poste pour vérifier.' 'INFO' }
+})
+$sync.GridDrv.Add_MouseDoubleClick({
+    $row = $sync.GridDrv.SelectedItem
+    if ($row -and $row.HWID) { Start-Process ('https://www.catalog.update.microsoft.com/Search.aspx?q=' + [uri]::EscapeDataString($row.HWID)) }
+})
+$sync.BtnDrvOem.Add_Click({ if ($sync.DriverScan.Oem.Page) { Start-Process $sync.DriverScan.Oem.Page } })
+$sync.BtnDrvFromKey.Add_Click({
+    $dlg = New-Object System.Windows.Forms.FolderBrowserDialog
+    $dlg.Description = 'Dossier de pilotes (.inf) : export d''un poste identique, pack constructeur décompressé...'
+    $def = if ($sync.Mode -eq 'USB') { Join-Path $sync.Root 'Drivers\Exports' } else { [Environment]::GetFolderPath('MyDocuments') }
+    if (Test-Path -LiteralPath $def) { $dlg.SelectedPath = $def }
+    if ($dlg.ShowDialog() -ne 'OK') { return }
+    Start-TKJob -Name 'Pilotes depuis un dossier' -ScriptBlock { param($Path) Install-TKDriversFromFolder -Path $Path } -Arguments @{ Path = $dlg.SelectedPath }
+})
+$sync.BtnDrvExport.Add_Click({ Start-TKJob -Name 'Export des pilotes' -ScriptBlock { Export-TKDrivers } })
+$sync.BtnDrvSdio.Add_Click({
+    $sdio = if ($sync.Root) { Join-Path $sync.Root 'Drivers\SDIO\SDIO_x64.exe' } else { $null }
+    if ($sdio -and (Test-Path -LiteralPath $sdio)) { Start-Process -FilePath $sdio -WorkingDirectory (Split-Path $sdio) }
+    else {
+        if ([System.Windows.MessageBox]::Show("Snappy Driver Installer Origin n'est pas sur la clé (Drivers\SDIO\SDIO_x64.exe).`n`nOuvrir sa page de téléchargement ?", 'Tech Toolkit', 'YesNo', 'Information') -eq 'Yes') {
+            Start-Process 'https://www.glenn.delahoy.com/snappy-driver-installer-origin/'
+        }
+    }
+})
+
 # --- Onglet Creer ma cle ---
 $sync.UsbChecks = @{}
 $usbGroups = New-Object System.Collections.Generic.List[string]
@@ -1974,7 +2193,7 @@ Update-TKUsbSize
 Update-TKUsbDisks
 
 # --- Boucle UI : journal, statut, fin des taches ---
-$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh)
+$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh, $sync.BtnDrvScan, $sync.BtnDrvFromKey, $sync.BtnDrvExport)
 $timer = New-Object System.Windows.Threading.DispatcherTimer
 $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({
