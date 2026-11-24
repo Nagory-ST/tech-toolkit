@@ -1,0 +1,243 @@
+[
+  {
+    "id": "TK_FileExt", "category": "Confort & SAV", "risk": "low",
+    "name": "Afficher les extensions de fichiers",
+    "description": "Rend visibles les .exe/.js déguisés en documents (facture.pdf.exe). Utile en SAV comme en sécurité.",
+    "restartExplorer": true,
+    "registry": [
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "HideFileExt", "type": "DWord", "value": "0", "original": "1" }
+    ]
+  },
+  {
+    "id": "TK_HiddenFiles", "category": "Confort & SAV", "risk": "low",
+    "name": "Afficher les fichiers cachés",
+    "description": "Affiche les fichiers et dossiers cachés dans l'Explorateur (AppData, ProgramData...).",
+    "restartExplorer": true,
+    "registry": [
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Hidden", "type": "DWord", "value": "1", "original": "2" }
+    ]
+  },
+  {
+    "id": "TK_FastStartup", "category": "Confort & SAV", "risk": "low",
+    "name": "Désactiver le démarrage rapide",
+    "description": "Un arrêt devient un vrai arrêt : fini les pilotes et mises à jour bloqués par l'hibernation hybride.",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", "name": "HiberbootEnabled", "type": "DWord", "value": "0", "original": "1" }
+    ]
+  },
+  {
+    "id": "TK_VerboseStatus", "category": "Confort & SAV", "risk": "low",
+    "name": "Messages de démarrage détaillés",
+    "description": "Affiche ce que Windows fait au démarrage/arrêt (au lieu de « Veuillez patienter »). Aide à repérer un blocage.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "name": "VerboseStatus", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_EndTask", "category": "Confort & SAV", "risk": "low",
+    "name": "« Fin de tâche » dans la barre des tâches",
+    "description": "Windows 11 : clic droit sur une appli de la barre des tâches > Fin de tâche.",
+    "registry": [
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings", "name": "TaskbarEndTask", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_ClassicMenu", "category": "Confort & SAV", "risk": "low",
+    "name": "Menu contextuel classique (Windows 11)",
+    "description": "Rétablit le clic droit complet sans passer par « Afficher plus d'options ».",
+    "restartExplorer": true,
+    "invoke": "New-Item -Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32' -Value '' -Force | Out-Null",
+    "undo": "Remove-Item -Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}' -Recurse -Force -ErrorAction SilentlyContinue",
+    "test": "Test-Path 'HKCU:\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32'"
+  },
+
+  {
+    "id": "TK_Telemetry", "category": "Confidentialité", "risk": "low",
+    "name": "Télémétrie au minimum",
+    "description": "Stratégie de collecte au niveau le plus bas autorisé par l'édition + services DiagTrack et dmwappushservice désactivés.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection", "name": "AllowTelemetry", "type": "DWord", "value": "0", "original": "<RemoveEntry>" }
+    ],
+    "services": [
+      { "name": "DiagTrack", "startup": "Disabled", "original": "Automatic" },
+      { "name": "dmwappushservice", "startup": "Disabled", "original": "Manual" }
+    ]
+  },
+  {
+    "id": "TK_AdvertisingID", "category": "Confidentialité", "risk": "low",
+    "name": "Désactiver l'identifiant publicitaire",
+    "description": "Empêche les applications d'utiliser l'ID publicitaire pour le profilage.",
+    "registry": [
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo", "name": "Enabled", "type": "DWord", "value": "0", "original": "1" },
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo", "name": "DisabledByGroupPolicy", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_Suggestions", "category": "Confidentialité", "risk": "low",
+    "name": "Supprimer suggestions et applis sponsorisées",
+    "description": "Bloque l'installation silencieuse d'applis promues et les « conseils » dans Démarrer/Paramètres.",
+    "registry": [
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SilentInstalledAppsEnabled", "type": "DWord", "value": "0", "original": "1" },
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SystemPaneSuggestionsEnabled", "type": "DWord", "value": "0", "original": "1" },
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SoftLandingEnabled", "type": "DWord", "value": "0", "original": "1" },
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338388Enabled", "type": "DWord", "value": "0", "original": "1" },
+      { "path": "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338389Enabled", "type": "DWord", "value": "0", "original": "1" }
+    ]
+  },
+  {
+    "id": "TK_BingSearch", "category": "Confidentialité", "risk": "low",
+    "name": "Retirer Bing de la recherche Démarrer",
+    "description": "La recherche du menu Démarrer reste locale (fichiers, applis, paramètres).",
+    "restartExplorer": true,
+    "registry": [
+      { "path": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer", "name": "DisableSearchBoxSuggestions", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_ActivityHistory", "category": "Confidentialité", "risk": "low",
+    "name": "Désactiver l'historique d'activité",
+    "description": "Windows n'enregistre plus ni n'envoie la chronologie des applis et documents ouverts.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "EnableActivityFeed", "type": "DWord", "value": "0", "original": "<RemoveEntry>" },
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "PublishUserActivities", "type": "DWord", "value": "0", "original": "<RemoveEntry>" },
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System", "name": "UploadUserActivities", "type": "DWord", "value": "0", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_CopilotRecall", "category": "Confidentialité", "risk": "low",
+    "name": "Désactiver Copilot (stratégie) et Recall",
+    "description": "Stratégies de désactivation de Windows Copilot et de l'analyse d'instantanés Recall. L'appli Copilot du Store, si installée, reste à désinstaller.",
+    "registry": [
+      { "path": "HKCU:\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot", "type": "DWord", "value": "1", "original": "<RemoveEntry>" },
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "DisableAIDataAnalysis", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+
+  {
+    "id": "TK_Firewall", "category": "Durcissement", "risk": "low",
+    "name": "Pare-feu actif sur tous les profils",
+    "description": "Active le pare-feu Windows (domaine, privé, public). Volontairement non annulé.",
+    "invoke": "Set-NetFirewallProfile -All -Enabled True",
+    "undo": "Write-TKLog 'Pare-feu : annulation volontairement ignorée.' 'WARN'",
+    "test": "@(Get-NetFirewallProfile | Where-Object { -not $_.Enabled }).Count -eq 0"
+  },
+  {
+    "id": "TK_SMB1Off", "category": "Durcissement", "risk": "low", "reboot": true,
+    "name": "Désactiver SMBv1",
+    "description": "Protocole obsolète exploité par WannaCry/NotPetya. Attention aux très vieux NAS/copieurs qui en dépendent encore.",
+    "invoke": "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force -ErrorAction SilentlyContinue; $f = Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -ErrorAction SilentlyContinue; if ($f -and $f.State -eq 'Enabled') { Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart -ErrorAction SilentlyContinue | Out-Null }",
+    "undo": "Set-SmbServerConfiguration -EnableSMB1Protocol $true -Force -ErrorAction SilentlyContinue",
+    "test": "-not (Get-SmbServerConfiguration).EnableSMB1Protocol"
+  },
+  {
+    "id": "TK_LLMNROff", "category": "Durcissement", "risk": "low",
+    "name": "Désactiver LLMNR",
+    "description": "Coupe la résolution de noms multicast, cible classique de l'empoisonnement (Responder) pour voler des hash NTLM.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient", "name": "EnableMulticast", "type": "DWord", "value": "0", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_AutorunOff", "category": "Durcissement", "risk": "low",
+    "name": "Désactiver l'exécution automatique",
+    "description": "Aucune exécution automatique à l'insertion d'une clé USB, d'un CD ou d'un partage.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", "name": "NoDriveTypeAutoRun", "type": "DWord", "value": "255", "original": "<RemoveEntry>" },
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", "name": "NoAutorun", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_WDigestOff", "category": "Durcissement", "risk": "low",
+    "name": "Interdire les mots de passe en clair (WDigest)",
+    "description": "Empêche LSASS de garder les mots de passe en clair en mémoire (cible privilégiée des outils de vol d'identifiants).",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest", "name": "UseLogonCredential", "type": "DWord", "value": "0", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_PUA", "category": "Durcissement", "risk": "low",
+    "name": "Defender : bloquer les applis indésirables (PUA)",
+    "description": "Bloque adwares, bundlers et outils potentiellement indésirables. Sans effet si un antivirus tiers remplace Defender.",
+    "invoke": "Set-MpPreference -PUAProtection Enabled -ErrorAction Stop",
+    "undo": "Set-MpPreference -PUAProtection Disabled -ErrorAction SilentlyContinue",
+    "test": "(Get-MpPreference -ErrorAction Stop).PUAProtection -eq 1"
+  },
+  {
+    "id": "TK_RemoteAssistOff", "category": "Durcissement", "risk": "low",
+    "name": "Désactiver l'Assistance à distance",
+    "description": "Ferme l'invitation d'Assistance à distance Windows (souvent abusée par les faux supports techniques). N'affecte pas le RDP.",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Remote Assistance", "name": "fAllowToGetHelp", "type": "DWord", "value": "0", "original": "1" }
+    ]
+  },
+  {
+    "id": "TK_PSv2Off", "category": "Durcissement", "risk": "low",
+    "name": "Retirer PowerShell 2.0",
+    "description": "PowerShell 2 ne journalise rien : il sert à contourner les protections. Déjà absent sur les Windows 11 récents.",
+    "invoke": "$f = Get-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root -ErrorAction SilentlyContinue; if ($f -and $f.State -eq 'Enabled') { Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root -NoRestart -ErrorAction SilentlyContinue | Out-Null }",
+    "undo": "Enable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root -NoRestart -ErrorAction SilentlyContinue | Out-Null",
+    "test": "$f = Get-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root -ErrorAction SilentlyContinue; (-not $f) -or ($f.State -ne 'Enabled')"
+  },
+  {
+    "id": "TK_AuditLogging", "category": "Durcissement", "risk": "low",
+    "name": "Journalisation de sécurité renforcée",
+    "description": "Audit de création de processus avec ligne de commande (4688), journalisation des blocs de script PowerShell (4104), journal Sécurité à 512 Mo. Indispensable pour enquêter après un incident.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit", "name": "ProcessCreationIncludeCmdLine_Enabled", "type": "DWord", "value": "1", "original": "<RemoveEntry>" },
+      { "path": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "name": "EnableScriptBlockLogging", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ],
+    "invoke": "auditpol.exe /set /subcategory:'{0CCE922B-69AE-11D9-BED3-505054503030}' /success:enable /failure:enable | Out-Null; wevtutil.exe sl Security /ms:536870912",
+    "undo": "auditpol.exe /set /subcategory:'{0CCE922B-69AE-11D9-BED3-505054503030}' /success:disable /failure:disable | Out-Null"
+  },
+
+  {
+    "id": "TK_NetBIOSOff", "category": "Durcissement renforcé", "risk": "medium",
+    "name": "Désactiver NetBIOS sur TCP/IP",
+    "description": "Même logique que LLMNR. Peut casser la découverte de très vieux NAS/imprimantes par leur nom court.",
+    "invoke": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name NetbiosOptions -Value 2 -Type DWord }",
+    "undo": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name NetbiosOptions -Value 0 -Type DWord }",
+    "test": "@(Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' | Where-Object { (Get-ItemProperty $_.PSPath).NetbiosOptions -ne 2 }).Count -eq 0"
+  },
+  {
+    "id": "TK_SMBSigning", "category": "Durcissement renforcé", "risk": "medium",
+    "name": "Signature SMB obligatoire",
+    "description": "Bloque le relais NTLM sur SMB. Déjà le défaut sur Windows 11 24H2. Vieux NAS/copieurs : tester avant.",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters", "name": "RequireSecuritySignature", "type": "DWord", "value": "1", "original": "0" },
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters", "name": "RequireSecuritySignature", "type": "DWord", "value": "1", "original": "0" }
+    ]
+  },
+  {
+    "id": "TK_NTLMv2Only", "category": "Durcissement renforcé", "risk": "medium",
+    "name": "NTLMv2 uniquement (refus LM et NTLMv1)",
+    "description": "LmCompatibilityLevel = 5. Peut casser l'authentification de très vieux équipements.",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa", "name": "LmCompatibilityLevel", "type": "DWord", "value": "5", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_LSAPPL", "category": "Durcissement renforcé", "risk": "medium", "reboot": true,
+    "name": "Protection LSA (RunAsPPL)",
+    "description": "LSASS tourne en processus protégé : bloque l'extraction d'identifiants. Certains vieux pilotes/AV peuvent ne pas aimer : tester.",
+    "registry": [
+      { "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa", "name": "RunAsPPL", "type": "DWord", "value": "1", "original": "<RemoveEntry>" }
+    ]
+  },
+  {
+    "id": "TK_UACMax", "category": "Durcissement renforcé", "risk": "medium",
+    "name": "UAC au niveau maximal",
+    "description": "Demande de confirmation sur le bureau sécurisé pour toute élévation, y compris les réglages Windows.",
+    "registry": [
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "name": "ConsentPromptBehaviorAdmin", "type": "DWord", "value": "2", "original": "5" },
+      { "path": "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "name": "PromptOnSecureDesktop", "type": "DWord", "value": "1", "original": "1" }
+    ]
+  },
+  {
+    "id": "TK_ASRAudit", "category": "Durcissement renforcé", "risk": "low",
+    "name": "Règles ASR Defender (mode audit)",
+    "description": "6 règles anti-macros, anti-scripts et anti-vol LSASS en mode AUDIT : journalise (événement 1122) sans bloquer. Passe en blocage après analyse. Nécessite Defender actif.",
+    "invoke": "$ids = 'D4F940AB-401B-4EFC-AADC-AD5F3C50688A','BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550','9E6C4E1F-7D60-472F-BA1A-A39EF669E4B2','D3E037E1-3EB8-44C8-A917-57927947596D','5BEB7EFE-FD9A-4556-801D-275E5FFC04CC','92E97FA1-2EDF-4476-BDD6-9DD0B4DDDC7B'; Add-MpPreference -AttackSurfaceReductionRules_Ids $ids -AttackSurfaceReductionRules_Actions (@('AuditMode') * $ids.Count) -ErrorAction Stop",
+    "undo": "$ids = 'D4F940AB-401B-4EFC-AADC-AD5F3C50688A','BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550','9E6C4E1F-7D60-472F-BA1A-A39EF669E4B2','D3E037E1-3EB8-44C8-A917-57927947596D','5BEB7EFE-FD9A-4556-801D-275E5FFC04CC','92E97FA1-2EDF-4476-BDD6-9DD0B4DDDC7B'; Remove-MpPreference -AttackSurfaceReductionRules_Ids $ids -ErrorAction SilentlyContinue",
+    "test": "$cur = @((Get-MpPreference -ErrorAction Stop).AttackSurfaceReductionRules_Ids) | ForEach-Object { $_.ToUpper() }; @('D4F940AB-401B-4EFC-AADC-AD5F3C50688A','BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550','9E6C4E1F-7D60-472F-BA1A-A39EF669E4B2','D3E037E1-3EB8-44C8-A917-57927947596D','5BEB7EFE-FD9A-4556-801D-275E5FFC04CC','92E97FA1-2EDF-4476-BDD6-9DD0B4DDDC7B' | Where-Object { $cur -notcontains $_ }).Count -eq 0"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  { "name": "SAV standard", "description": "Confort technicien + sécurité de base, sans risque de casse.",
+    "tweaks": ["TK_FileExt", "TK_FastStartup", "TK_VerboseStatus", "TK_EndTask", "TK_AutorunOff", "TK_Firewall"] },
+  { "name": "Confidentialité", "description": "Télémétrie, publicité, Bing, Copilot/Recall.",
+    "tweaks": ["TK_Telemetry", "TK_AdvertisingID", "TK_Suggestions", "TK_BingSearch", "TK_ActivityHistory", "TK_CopilotRecall"] },
+  { "name": "Durcissement poste", "description": "Baseline sécurité applicable partout.",
+    "tweaks": ["TK_FileExt", "TK_Firewall", "TK_SMB1Off", "TK_LLMNROff", "TK_AutorunOff", "TK_WDigestOff", "TK_PUA", "TK_RemoteAssistOff", "TK_PSv2Off", "TK_AuditLogging"] },
+  { "name": "Durcissement renforcé", "description": "Baseline + mesures à tester avant (vieux NAS, copieurs, pilotes).",
+    "tweaks": ["TK_FileExt", "TK_Firewall", "TK_SMB1Off", "TK_LLMNROff", "TK_AutorunOff", "TK_WDigestOff", "TK_PUA", "TK_RemoteAssistOff", "TK_PSv2Off", "TK_AuditLogging", "TK_NetBIOSOff", "TK_SMBSigning", "TK_NTLMv2Only", "TK_LSAPPL", "TK_UACMax", "TK_ASRAudit"] }
+]

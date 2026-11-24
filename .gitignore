@@ -1,0 +1,5 @@
+# Sorties locales
+*.log
+Rapports/
+Collecte/
+state.json

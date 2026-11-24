@@ -1,0 +1,237 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Tech Toolkit" Width="1180" Height="800" MinWidth="960" MinHeight="640"
+        WindowStartupLocation="CenterScreen" Background="#0D1117" Foreground="#C9D1D9"
+        FontFamily="Segoe UI" FontSize="13">
+  <Window.Resources>
+    <SolidColorBrush x:Key="Accent" Color="#58A6FF"/>
+    <SolidColorBrush x:Key="Panel" Color="#161B22"/>
+    <SolidColorBrush x:Key="Line" Color="#30363D"/>
+    <SolidColorBrush x:Key="Muted" Color="#8B949E"/>
+
+    <Style x:Key="Btn" TargetType="Button">
+      <Setter Property="Background" Value="#21262D"/>
+      <Setter Property="Foreground" Value="#C9D1D9"/>
+      <Setter Property="BorderBrush" Value="#30363D"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="12,7"/>
+      <Setter Property="Margin" Value="0,3"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="BorderBrush" Value="#58A6FF"/>
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="BtnAccent" TargetType="Button" BasedOn="{StaticResource Btn}">
+      <Setter Property="Background" Value="#1F6FEB"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderBrush" Value="#388BFD"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style x:Key="BtnDanger" TargetType="Button" BasedOn="{StaticResource Btn}">
+      <Setter Property="Foreground" Value="#F85149"/>
+    </Style>
+
+    <Style TargetType="CheckBox">
+      <Setter Property="Foreground" Value="#E6EDF3"/>
+      <Setter Property="Margin" Value="0,2"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style TargetType="TabControl">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style TargetType="TabItem">
+      <Setter Property="Foreground" Value="#8B949E"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TabItem">
+            <Border x:Name="Bd" BorderThickness="0,0,0,2" BorderBrush="Transparent" Padding="16,10" Margin="0,0,4,0" Cursor="Hand">
+              <ContentPresenter ContentSource="Header" TextElement.FontSize="14"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter TargetName="Bd" Property="BorderBrush" Value="#58A6FF"/>
+                <Setter Property="Foreground" Value="#E6EDF3"/>
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#E6EDF3"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style TargetType="DataGridColumnHeader">
+      <Setter Property="Background" Value="#161B22"/>
+      <Setter Property="Foreground" Value="#8B949E"/>
+      <Setter Property="Padding" Value="8,6"/>
+      <Setter Property="BorderBrush" Value="#30363D"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+  </Window.Resources>
+
+  <Grid Margin="18,12,18,12">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- En-tete -->
+    <DockPanel Grid.Row="0" Margin="0,0,0,8">
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+        <Border Background="#1F6FEB" CornerRadius="8" Width="40" Height="40" Margin="0,0,12,0">
+          <TextBlock Text="TK" Foreground="White" FontWeight="Bold" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <StackPanel VerticalAlignment="Center">
+          <TextBlock Text="TECH TOOLKIT" FontSize="20" FontWeight="Bold" Foreground="#E6EDF3"/>
+          <TextBlock x:Name="TxtVersion" Foreground="#8B949E" FontSize="11"/>
+        </StackPanel>
+      </StackPanel>
+      <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Border x:Name="BdMode" CornerRadius="10" Padding="10,2" Margin="0,0,8,0" Background="#331F6FEB">
+            <TextBlock x:Name="TxtMode" FontSize="11" FontWeight="Bold" Foreground="#58A6FF"/>
+          </Border>
+          <TextBlock x:Name="TxtMachine" Foreground="#E6EDF3" FontWeight="SemiBold"/>
+        </StackPanel>
+        <TextBlock x:Name="TxtMachine2" Foreground="#8B949E" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0"/>
+      </StackPanel>
+    </DockPanel>
+
+    <TabControl Grid.Row="1" x:Name="Tabs">
+
+      <!-- ===================== TWEAKS ===================== -->
+      <TabItem Header="Tweaks &amp; durcissement">
+        <Grid Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,12,0">
+            <DockPanel>
+              <StackPanel DockPanel.Dock="Top">
+                <TextBlock Text="PROFILS" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                <StackPanel x:Name="PresetPanel"/>
+                <Separator Margin="0,12" Background="#30363D"/>
+                <CheckBox x:Name="ChkRestore" Content="Point de restauration avant" IsChecked="True"/>
+                <Button x:Name="BtnApply" Style="{StaticResource BtnAccent}" Content="Appliquer la sélection" Margin="0,10,0,3"/>
+                <Button x:Name="BtnUndo" Style="{StaticResource Btn}" Content="Annuler la sélection"/>
+                <Button x:Name="BtnRefresh" Style="{StaticResource Btn}" Content="Actualiser l'état"/>
+                <Button x:Name="BtnClear" Style="{StaticResource Btn}" Content="Tout décocher"/>
+              </StackPanel>
+              <TextBlock DockPanel.Dock="Bottom" VerticalAlignment="Bottom" TextWrapping="Wrap" Foreground="#8B949E" FontSize="11"
+                         Text="Les valeurs d'origine sont sauvegardées à la 1re application (ProgramData\TechToolkit\state.json). « Annuler » les restaure."/>
+            </DockPanel>
+          </Border>
+          <Border Grid.Column="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,4,16,12">
+              <StackPanel x:Name="TweaksPanel"/>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <!-- ===================== CONTROLE ===================== -->
+      <TabItem Header="Contrôle &amp; nettoyage">
+        <Grid Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="350"/>
+          </Grid.ColumnDefinitions>
+          <DockPanel Grid.Column="0" Margin="0,0,12,0">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+              <Button x:Name="BtnCheck" Style="{StaticResource BtnAccent}" Content="Lancer le contrôle" Margin="0,0,8,0"/>
+              <Button x:Name="BtnReport" Style="{StaticResource Btn}" Content="Ouvrir le rapport HTML" IsEnabled="False" Margin="0,0,8,0"/>
+              <Button x:Name="BtnFolder" Style="{StaticResource Btn}" Content="Dossier des rapports" Margin="0,0,16,0"/>
+              <TextBlock x:Name="TxtCheckSummary" VerticalAlignment="Center" Foreground="#8B949E"/>
+            </StackPanel>
+            <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
+              <DataGrid x:Name="GridCheck" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                        HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262D"
+                        Background="Transparent" RowBackground="#161B22" AlternatingRowBackground="#121821"
+                        Foreground="#C9D1D9" BorderThickness="0" SelectionMode="Single">
+                <DataGrid.RowStyle>
+                  <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Etat}" Value="KO"><Setter Property="Foreground" Value="#F85149"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Etat}" Value="WARN"><Setter Property="Foreground" Value="#D29922"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Etat}" Value="OK"><Setter Property="Foreground" Value="#3FB950"/></DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="État" Binding="{Binding Etat}" Width="60"/>
+                  <DataGridTextColumn Header="Catégorie" Binding="{Binding Categorie}" Width="110"/>
+                  <DataGridTextColumn Header="Contrôle" Binding="{Binding Controle}" Width="210"/>
+                  <DataGridTextColumn Header="Détail" Binding="{Binding Detail}" Width="*"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Border>
+          </DockPanel>
+          <Border Grid.Column="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14">
+            <DockPanel>
+              <TextBlock DockPanel.Dock="Top" Text="NETTOYAGE &amp; RÉPARATION" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,0,0,4"/>
+              <StackPanel DockPanel.Dock="Bottom">
+                <Button x:Name="BtnRunCleanup" Style="{StaticResource BtnAccent}" Content="Exécuter la sélection" Margin="0,8,0,6"/>
+                <TextBlock TextWrapping="Wrap" Foreground="#8B949E" FontSize="11"
+                           Text="Volontairement absents : effacement des journaux d'événements et du Prefetch. Ce sont des traces précieuses en cas d'incident."/>
+              </StackPanel>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="CleanupPanel"/>
+              </ScrollViewer>
+            </DockPanel>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <!-- ===================== OUTILS CLE ===================== -->
+      <TabItem x:Name="TabTools" Header="Outils de la clé">
+        <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,10,0,0">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+              <TextBlock Text="Catégorie" VerticalAlignment="Center" Margin="0,0,8,0"/>
+              <ComboBox x:Name="CmbToolCat" Width="200" Margin="0,0,12,0"/>
+              <Button x:Name="BtnLaunchTool" Style="{StaticResource BtnAccent}" Content="Lancer l'outil" Margin="0,0,12,0"/>
+              <TextBlock x:Name="TxtToolsInfo" VerticalAlignment="Center" Foreground="#8B949E"/>
+            </StackPanel>
+            <ListBox x:Name="LstTools" Background="#0D1117" Foreground="#E6EDF3" BorderBrush="#30363D" DisplayMemberPath="Display" FontSize="13"/>
+          </DockPanel>
+        </Border>
+      </TabItem>
+    </TabControl>
+
+    <!-- Statut -->
+    <DockPanel Grid.Row="2" Margin="0,8,0,4">
+      <ProgressBar x:Name="Progress" DockPanel.Dock="Right" Width="220" Height="6" Foreground="#58A6FF" Background="#21262D" BorderThickness="0" Visibility="Hidden"/>
+      <TextBlock x:Name="TxtStatus" Foreground="#8B949E" Text="Prêt"/>
+    </DockPanel>
+
+    <!-- Journal -->
+    <Expander Grid.Row="3" Header="Journal" IsExpanded="True" Foreground="#8B949E">
+      <TextBox x:Name="LogBox" Height="130" IsReadOnly="True" Background="#010409" Foreground="#C9D1D9" BorderBrush="#30363D"
+               FontFamily="Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" Margin="0,4,0,0"/>
+    </Expander>
+  </Grid>
+</Window>
