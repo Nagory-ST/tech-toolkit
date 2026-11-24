@@ -191,6 +191,14 @@ function Install-TKUsbComponent {
         $a = Resolve-TKGithubAsset -Repo $C.source.repo -Patterns @($C.source.asset)
         $url = $a.Url; $name = $a.Name; $ver = $a.Version
     }
+    elseif ($C.source.type -eq 'scrape') {
+        # Lien versionne lu sur la page officielle (pas d'URL "latest" stable)
+        $html = (Get-TKHttp).GetStringAsync($C.source.page).GetAwaiter().GetResult()
+        $m = [regex]::Match($html, $C.source.pattern)
+        if (-not $m.Success) { throw "Lien introuvable sur $($C.source.page) (la page a peut-être changé)" }
+        $url = $m.Value; $name = Split-Path $url -Leaf
+        $v = [regex]::Match($name, '\d+(\.\d+)+'); if ($v.Success) { $ver = $v.Value }
+    }
     $isZip = [bool]$C.extract -or ($name -match '\.zip$')
     $ext = if ($isZip) { '.zip' } elseif ($name) { [IO.Path]::GetExtension($name) } else { [IO.Path]::GetExtension($dest) }
     $tmp = Join-Path $Work ($C.id + $ext)

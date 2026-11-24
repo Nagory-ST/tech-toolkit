@@ -371,9 +371,9 @@ $sync.configs.usb = @'
   { "id": "iso_hirens", "group": "ISO de d\u00e9marrage", "name": "Hiren's BootCD PE", "sizeMB": 3100, "default": true,
     "target": "ventoy", "dest": "ISO\\Rescue\\HirensBootCDPE.iso",
     "source": { "type": "url", "url": "https://www.hirensbootcd.org/files/HBCD_PE_x64.iso" } },
-  { "id": "iso_sysrescue", "group": "ISO de d\u00e9marrage", "name": "SystemRescue", "sizeMB": 1100, "default": true,
+  { "id": "iso_sysrescue", "group": "ISO de d\u00e9marrage", "name": "SystemRescue", "sizeMB": 1400, "default": true,
     "target": "ventoy", "dest": "ISO\\Rescue\\systemrescue.iso",
-    "source": { "type": "url", "url": "https://sourceforge.net/projects/systemrescuecd/files/latest/download" } },
+    "source": { "type": "scrape", "page": "https://www.system-rescue.org/Download/", "pattern": "https://fastly-cdn\\.system-rescue\\.org/releases/[\\d\\.]+/systemrescue-[\\d\\.]+-amd64\\.iso" } },
   { "id": "iso_rescuezilla", "group": "ISO de d\u00e9marrage", "name": "Rescuezilla (clonage)", "sizeMB": 1300, "default": true,
     "target": "ventoy", "dest": "ISO\\Rescue\\rescuezilla.iso",
     "source": { "type": "github", "repo": "rescuezilla/rescuezilla", "asset": ["(?i)64bit.*\\.iso$", "(?i)\\.iso$"] } },
@@ -381,10 +381,8 @@ $sync.configs.usb = @'
     "target": "ventoy", "dest": "ISO\\Rescue\\memtest86plus.iso",
     "note": "Les binaires ne sont plus publi\u00e9s sur GitHub. Prends l'ISO 64 bits et renomme-la memtest86plus.iso. Depuis la v9.00 elle est sign\u00e9e, mais pas par Microsoft : Secure Boot peut la bloquer.",
     "source": { "type": "page", "url": "https://www.memtest.org/" } },
-  { "id": "iso_eset", "group": "ISO de d\u00e9marrage", "name": "ESET SysRescue Live", "sizeMB": 800, "default": true,
-    "target": "ventoy", "dest": "ISO\\Antivirus\\eset_sysrescue.iso",
-    "source": { "type": "url", "url": "https://download.eset.com/com/eset/tools/recovery/rescue_cd/latest/eset_sysrescue_live_enu.iso" } },
   { "id": "iso_krd", "group": "ISO de d\u00e9marrage", "name": "Kaspersky Rescue Disk", "sizeMB": 700, "default": false,
+    "note": "Version 2018 (lien officiel stable). Mets \u00e0 jour les signatures au d\u00e9marrage : elles datent de l'ISO.",
     "target": "ventoy", "dest": "ISO\\Antivirus\\krd.iso",
     "source": { "type": "url", "url": "https://rescuedisk.s.kaspersky-labs.com/updatable/2018/krd.iso" } },
   { "id": "iso_win11", "group": "ISO de d\u00e9marrage", "name": "Windows 11 (page Microsoft)", "sizeMB": 0, "default": true,
@@ -392,7 +390,7 @@ $sync.configs.usb = @'
     "note": "Microsoft ne fournit pas de lien direct : t\u00e9l\u00e9charge l'ISO et renomme-la Win11_FR_x64.iso.",
     "source": { "type": "page", "url": "https://www.microsoft.com/fr-fr/software-download/windows11" } },
 
-  { "id": "t_sysinternals", "group": "Contr\u00f4le & nettoyage", "name": "Sysinternals Suite", "sizeMB": 50, "default": true,
+  { "id": "t_sysinternals", "group": "Contr\u00f4le & nettoyage", "name": "Sysinternals Suite", "sizeMB": 360, "default": true,
     "target": "tools", "dest": "Tools\\20_Sysinternals", "extract": true, "check": "Tools\\20_Sysinternals\\Autoruns64.exe",
     "source": { "type": "url", "url": "https://download.sysinternals.com/files/SysinternalsSuite.zip" } },
   { "id": "t_kvrt", "group": "Contr\u00f4le & nettoyage", "name": "Kaspersky Virus Removal Tool", "sizeMB": 150, "default": true,
@@ -400,14 +398,14 @@ $sync.configs.usb = @'
     "source": { "type": "url", "url": "https://devbuilds.s.kaspersky-labs.com/devbuilds/KVRT/latest/full/KVRT.exe" } },
   { "id": "t_adwcleaner", "group": "Contr\u00f4le & nettoyage", "name": "AdwCleaner", "sizeMB": 10, "default": true,
     "target": "tools", "dest": "Tools\\50_Nettoyage\\adwcleaner.exe",
-    "source": { "type": "url", "url": "https://downloads.malwarebytes.com/file/adwcleaner" } },
+    "source": { "type": "url", "url": "https://adwcleaner.malwarebytes.com/adwcleaner?channel=release" } },
   { "id": "t_msert", "group": "Contr\u00f4le & nettoyage", "name": "Microsoft Safety Scanner", "sizeMB": 200, "default": true, "refresh": true,
     "note": "Expire au bout de 10 jours : toujours re-t\u00e9l\u00e9charg\u00e9 lors d'une mise \u00e0 jour.",
     "target": "tools", "dest": "Tools\\50_Nettoyage\\MSERT.exe",
     "source": { "type": "url", "url": "https://go.microsoft.com/fwlink/?LinkId=212732" } },
-  { "id": "t_esetonline", "group": "Contr\u00f4le & nettoyage", "name": "ESET Online Scanner", "sizeMB": 10, "default": true,
+  { "id": "t_esetonline", "group": "Contr\u00f4le & nettoyage", "name": "ESET Online Scanner (page)", "sizeMB": 0, "default": false,
     "target": "tools", "dest": "Tools\\50_Nettoyage\\esetonlinescanner.exe",
-    "source": { "type": "url", "url": "https://download.eset.com/com/eset/tools/online_scanner/latest/esetonlinescanner.exe" } },
+    "source": { "type": "page", "url": "https://www.eset.com/int/home/online-scanner/" } },
   { "id": "t_hitmanpro", "group": "Contr\u00f4le & nettoyage", "name": "HitmanPro", "sizeMB": 15, "default": false,
     "target": "tools", "dest": "Tools\\50_Nettoyage\\HitmanPro_x64.exe",
     "source": { "type": "url", "url": "https://dl.surfright.nl/HitmanPro_x64.exe" } },
@@ -1526,6 +1524,14 @@ function Install-TKUsbComponent {
     if ($C.source.type -eq 'github') {
         $a = Resolve-TKGithubAsset -Repo $C.source.repo -Patterns @($C.source.asset)
         $url = $a.Url; $name = $a.Name; $ver = $a.Version
+    }
+    elseif ($C.source.type -eq 'scrape') {
+        # Lien versionne lu sur la page officielle (pas d'URL "latest" stable)
+        $html = (Get-TKHttp).GetStringAsync($C.source.page).GetAwaiter().GetResult()
+        $m = [regex]::Match($html, $C.source.pattern)
+        if (-not $m.Success) { throw "Lien introuvable sur $($C.source.page) (la page a peut-être changé)" }
+        $url = $m.Value; $name = Split-Path $url -Leaf
+        $v = [regex]::Match($name, '\d+(\.\d+)+'); if ($v.Success) { $ver = $v.Value }
     }
     $isZip = [bool]$C.extract -or ($name -match '\.zip$')
     $ext = if ($isZip) { '.zip' } elseif ($name) { [IO.Path]::GetExtension($name) } else { [IO.Path]::GetExtension($dest) }
