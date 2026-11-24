@@ -9,9 +9,7 @@
   { "cat": "Nettoyage", "name": "Process Explorer", "path": "Tools\\20_Sysinternals\\procexp64.exe", "args": "-accepteula", "desc": "Processus + vérification VirusTotal" },
   { "cat": "Nettoyage", "name": "TCPView", "path": "Tools\\20_Sysinternals\\tcpview64.exe", "args": "-accepteula", "desc": "Connexions réseau par processus" },
   { "cat": "Nettoyage", "name": "Emsisoft Emergency Kit", "path": "Tools\\50_Nettoyage\\EEK\\Start Emergency Kit Scanner.exe", "desc": "Scanner portable" },
-  { "cat": "Nettoyage", "name": "KVRT (Kaspersky)", "path": "Tools\\50_Nettoyage\\KVRT.exe", "desc": "Virus Removal Tool" },
   { "cat": "Nettoyage", "name": "ESET Online Scanner", "path": "Tools\\50_Nettoyage\\esetonlinescanner.exe", "desc": "Second avis (réseau requis)" },
-  { "cat": "Nettoyage", "name": "HitmanPro", "path": "Tools\\50_Nettoyage\\HitmanPro_x64.exe", "desc": "Second avis cloud" },
   { "cat": "Nettoyage", "name": "AdwCleaner", "path": "Tools\\50_Nettoyage\\adwcleaner.exe", "desc": "Adwares, PUP, pirates de navigateur" },
   { "cat": "Nettoyage", "name": "MS Safety Scanner", "path": "Tools\\50_Nettoyage\\MSERT.exe", "desc": "Expire après 10 jours : à re-télécharger" },
 
