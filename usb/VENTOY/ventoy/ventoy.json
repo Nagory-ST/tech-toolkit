@@ -1,0 +1,66 @@
+{
+  "control": [
+    { "VTOY_DEFAULT_SEARCH_ROOT": "/ISO" },
+    { "VTOY_DEFAULT_MENU_MODE": "0" },
+    { "VTOY_FILT_DOT_UNDERSCORE_FILE": "1" },
+    { "VTOY_MENU_LANGUAGE": "fr_FR" },
+    { "VTOY_MENU_TIMEOUT": "30" },
+    { "VTOY_DEFAULT_IMAGE": "/ISO/Rescue/HirensBootCDPE.iso" }
+  ],
+
+  "theme": {
+    "file": "/ventoy/theme/toolkit/theme.txt",
+    "gfxmode": "1920x1080",
+    "resolution_fit": 1,
+    "display_mode": "GUI",
+    "fonts": [
+      "/ventoy/theme/toolkit/toolkit_r16.pf2",
+      "/ventoy/theme/toolkit/toolkit_r20.pf2",
+      "/ventoy/theme/toolkit/toolkit_b20.pf2"
+    ]
+  },
+
+  "menu_class": [
+    { "key": "Win11",         "class": "windows" },
+    { "key": "Win10",         "class": "windows" },
+    { "key": "Hirens",        "class": "rescue" },
+    { "key": "systemrescue",  "class": "rescue" },
+    { "key": "eset",          "class": "antivirus" },
+    { "key": "krd",           "class": "antivirus" },
+    { "key": "rescuezilla",   "class": "clone" },
+    { "key": "clonezilla",    "class": "clone" },
+    { "key": "memtest",       "class": "memtest" }
+  ],
+
+  "menu_alias": [
+    { "image": "/ISO/Windows/Win11_FR_x64.iso",       "alias": "Windows 11 Pro  -  Déploiement" },
+    { "image": "/ISO/Rescue/HirensBootCDPE.iso",       "alias": "Hiren's PE  -  Dépannage Windows" },
+    { "image": "/ISO/Rescue/systemrescue.iso",         "alias": "SystemRescue  -  Disques & partitions" },
+    { "image": "/ISO/Rescue/rescuezilla.iso",          "alias": "Rescuezilla  -  Clonage & images" },
+    { "image": "/ISO/Rescue/memtest86plus.iso",        "alias": "Memtest86+  -  Test mémoire" },
+    { "image": "/ISO/Antivirus/eset_sysrescue.iso",    "alias": "ESET SysRescue  -  Scan hors Windows" },
+    { "image": "/ISO/Antivirus/krd.iso",               "alias": "Kaspersky Rescue Disk  -  2e avis" }
+  ],
+
+  "menu_tip": {
+    "left": "30%",
+    "top": "84%",
+    "color": "#8B949E",
+    "tips": [
+      { "image": "/ISO/Windows/Win11_FR_x64.iso",    "tip": "Installation auto : choisis le modèle (local / domaine) au lancement" },
+      { "image": "/ISO/Rescue/HirensBootCDPE.iso",    "tip": "WinPE : mots de passe locaux, partitions, récupération de fichiers" },
+      { "image": "/ISO/Antivirus/eset_sysrescue.iso", "tip": "Mets à jour les signatures avant le scan (réseau requis)" },
+      { "image": "/ISO/Antivirus/krd.iso",            "tip": "Mets à jour les signatures avant le scan (réseau requis)" }
+    ]
+  },
+
+  "auto_install": [
+    {
+      "image": "/ISO/Windows/Win11_FR_x64.iso",
+      "template": [
+        "/Deploy/Unattend/win11-pro-local.xml",
+        "/Deploy/Unattend/win11-pro-domaine.xml"
+      ]
+    }
+  ]
+}

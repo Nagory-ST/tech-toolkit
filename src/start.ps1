@@ -53,6 +53,7 @@ $sync.OnDone    = @{}
 $sync.Busy      = $false
 $sync.Status    = 'Pret'
 $sync.configs   = @{}
+$sync.RepoZip   = 'https://codeload.github.com/Nagory-ST/tech-toolkit/zip/refs/heads/main'
 
 New-Item -ItemType Directory -Path (Join-Path $sync.DataDir 'logs') -Force | Out-Null
 $sync.LogFile   = Join-Path $sync.DataDir ("logs\toolkit_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))

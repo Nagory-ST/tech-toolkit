@@ -1,0 +1,47 @@
+[
+  { "cat": "Contrôle", "name": "Check rapide", "type": "script", "path": "Scripts\\check.ps1", "args": "-OutRoot \"{COLLECTE}\"", "desc": "Antivirus, BitLocker, pare-feu, patchs, comptes, persistance" },
+  { "cat": "Contrôle", "name": "Export Autoruns (CSV)", "type": "console", "path": "Tools\\20_Sysinternals\\autorunsc64.exe", "args": "-accepteula -a * -c -h -s -o \"{COLLECTE}\\autoruns_%COMPUTERNAME%.csv\"", "desc": "Tout ce qui démarre, avec hash et signature" },
+  { "cat": "Contrôle", "name": "Binaires non signés", "type": "console", "path": "Tools\\20_Sysinternals\\sigcheck64.exe", "args": "-accepteula -u -e -s C:\\Users", "desc": "Exécutables non signés dans les profils" },
+  { "cat": "Contrôle", "name": "Hayabusa (journaux)", "type": "console", "path": "Tools\\60_Controle\\hayabusa\\hayabusa.exe", "args": "csv-timeline -l -w -o \"{COLLECTE}\\hayabusa_%COMPUTERNAME%.csv\"", "desc": "Analyse Sigma des journaux EVTX en direct" },
+  { "cat": "Contrôle", "name": "Intégrité de la clé", "type": "script", "path": "Scripts\\integrity.ps1", "args": "-Verify", "desc": "Compare les outils au manifeste SHA256" },
+
+  { "cat": "Nettoyage", "name": "Autoruns", "path": "Tools\\20_Sysinternals\\Autoruns64.exe", "args": "-accepteula", "desc": "Persistance : démarrage, tâches, services, WMI" },
+  { "cat": "Nettoyage", "name": "Process Explorer", "path": "Tools\\20_Sysinternals\\procexp64.exe", "args": "-accepteula", "desc": "Processus + vérification VirusTotal" },
+  { "cat": "Nettoyage", "name": "TCPView", "path": "Tools\\20_Sysinternals\\tcpview64.exe", "args": "-accepteula", "desc": "Connexions réseau par processus" },
+  { "cat": "Nettoyage", "name": "Emsisoft Emergency Kit", "path": "Tools\\50_Nettoyage\\EEK\\Start Emergency Kit Scanner.exe", "desc": "Scanner portable" },
+  { "cat": "Nettoyage", "name": "KVRT (Kaspersky)", "path": "Tools\\50_Nettoyage\\KVRT.exe", "desc": "Virus Removal Tool" },
+  { "cat": "Nettoyage", "name": "ESET Online Scanner", "path": "Tools\\50_Nettoyage\\esetonlinescanner.exe", "desc": "Second avis (réseau requis)" },
+  { "cat": "Nettoyage", "name": "HitmanPro", "path": "Tools\\50_Nettoyage\\HitmanPro_x64.exe", "desc": "Second avis cloud" },
+  { "cat": "Nettoyage", "name": "AdwCleaner", "path": "Tools\\50_Nettoyage\\adwcleaner.exe", "desc": "Adwares, PUP, pirates de navigateur" },
+  { "cat": "Nettoyage", "name": "MS Safety Scanner", "path": "Tools\\50_Nettoyage\\MSERT.exe", "desc": "Expire après 10 jours : à re-télécharger" },
+
+  { "cat": "Réseau", "name": "PuTTY", "path": "Tools\\10_Reseau\\putty.exe", "desc": "SSH / Telnet / série" },
+  { "cat": "Réseau", "name": "WinSCP", "path": "Tools\\10_Reseau\\WinSCP\\WinSCP.exe", "desc": "SFTP / SCP" },
+  { "cat": "Réseau", "name": "Advanced IP Scanner", "path": "Tools\\10_Reseau\\AdvancedIPScanner\\advanced_ip_scanner.exe", "desc": "Scan du LAN" },
+  { "cat": "Réseau", "name": "Wireshark", "path": "Tools\\10_Reseau\\WiresharkPortable64\\WiresharkPortable64.exe", "desc": "Capture (Npcap requis sur le PC)" },
+  { "cat": "Réseau", "name": "Tftpd64", "path": "Tools\\10_Reseau\\tftpd64\\tftpd64.exe", "desc": "TFTP / DHCP / Syslog" },
+  { "cat": "Réseau", "name": "iperf3", "type": "console", "path": "Tools\\10_Reseau\\iperf3\\iperf3.exe", "args": "--help", "desc": "Test de débit" },
+  { "cat": "Réseau", "name": "mRemoteNG", "path": "Tools\\10_Reseau\\mRemoteNG\\mRemoteNG.exe", "desc": "Multi-sessions RDP / SSH / VNC" },
+
+  { "cat": "Diagnostic", "name": "HWiNFO64", "path": "Tools\\30_Diag-Hardware\\HWiNFO\\HWiNFO64.exe", "desc": "Matériel, capteurs, températures" },
+  { "cat": "Diagnostic", "name": "CrystalDiskInfo", "path": "Tools\\30_Diag-Hardware\\CrystalDiskInfo\\DiskInfo64.exe", "desc": "SMART des disques" },
+  { "cat": "Diagnostic", "name": "CPU-Z", "path": "Tools\\30_Diag-Hardware\\CPU-Z\\cpuz_x64.exe", "desc": "CPU / RAM / carte mère" },
+  { "cat": "Diagnostic", "name": "BlueScreenView", "path": "Tools\\30_Diag-Hardware\\BlueScreenView.exe", "desc": "Analyse des écrans bleus" },
+  { "cat": "Diagnostic", "name": "WizTree", "path": "Tools\\30_Diag-Hardware\\WizTree\\WizTree64.exe", "desc": "Qui prend la place sur le disque" },
+  { "cat": "Diagnostic", "name": "Process Monitor", "path": "Tools\\20_Sysinternals\\Procmon64.exe", "args": "-accepteula", "desc": "Trace fichiers / registre / processus" },
+
+  { "cat": "Récupération", "name": "TestDisk", "type": "console", "path": "Tools\\40_Recovery\\testdisk\\testdisk_win.exe", "desc": "Partitions perdues" },
+  { "cat": "Récupération", "name": "PhotoRec", "type": "console", "path": "Tools\\40_Recovery\\testdisk\\photorec_win.exe", "desc": "Fichiers supprimés" },
+  { "cat": "Récupération", "name": "ShadowExplorer", "path": "Tools\\40_Recovery\\ShadowExplorer\\ShadowExplorer.exe", "desc": "Clichés instantanés (VSS)" },
+  { "cat": "Récupération", "name": "ProduKey", "path": "Tools\\40_Recovery\\ProduKey.exe", "desc": "Clé de licence Windows / Office avant réinstallation" },
+
+  { "cat": "Déploiement", "name": "Post-install", "type": "script", "path": "Deploy\\PostInstall\\postinstall.ps1", "desc": "Applis winget + réglages de base + MAJ" },
+  { "cat": "Déploiement", "name": "Pilotes : export / injection", "type": "script", "path": "Scripts\\drivers.ps1", "args": "-Collecte \"{COLLECTE}\"", "desc": "pnputil : sauvegarde ou installation" },
+  { "cat": "Déploiement", "name": "Snappy Driver Installer", "path": "Drivers\\SDIO\\SDIO_x64.exe", "desc": "Pilotes hors ligne (version Origin uniquement)" },
+
+  { "cat": "Système", "name": "Everything", "path": "Tools\\00_Base\\Everything\\Everything.exe", "desc": "Recherche de fichiers instantanée" },
+  { "cat": "Système", "name": "Notepad++", "path": "Tools\\00_Base\\Notepad++\\notepad++.exe", "desc": "Éditeur" },
+  { "cat": "Système", "name": "7-Zip", "path": "Tools\\00_Base\\7-Zip\\7zFM.exe", "desc": "Archives" },
+
+  { "cat": "IA", "name": "Assistant IA hors ligne", "path": "IA\\start-ia.bat", "desc": "KoboldCpp + modèle GGUF local" }
+]

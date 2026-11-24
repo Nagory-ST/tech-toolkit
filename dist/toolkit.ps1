@@ -53,6 +53,7 @@ $sync.OnDone    = @{}
 $sync.Busy      = $false
 $sync.Status    = 'Pret'
 $sync.configs   = @{}
+$sync.RepoZip   = 'https://codeload.github.com/Nagory-ST/tech-toolkit/zip/refs/heads/main'
 
 New-Item -ItemType Directory -Path (Join-Path $sync.DataDir 'logs') -Force | Out-Null
 $sync.LogFile   = Join-Path $sync.DataDir ("logs\toolkit_{0}.log" -f (Get-Date -Format 'yyyyMMdd'))
@@ -365,6 +366,108 @@ $sync.configs.tweaks = @'
   }
 ]
 '@ | ConvertFrom-Json
+$sync.configs.usb = @'
+[
+  { "id": "iso_hirens", "group": "ISO de d\u00e9marrage", "name": "Hiren's BootCD PE", "sizeMB": 3100, "default": true,
+    "target": "ventoy", "dest": "ISO\\Rescue\\HirensBootCDPE.iso",
+    "source": { "type": "url", "url": "https://www.hirensbootcd.org/files/HBCD_PE_x64.iso" } },
+  { "id": "iso_sysrescue", "group": "ISO de d\u00e9marrage", "name": "SystemRescue", "sizeMB": 1100, "default": true,
+    "target": "ventoy", "dest": "ISO\\Rescue\\systemrescue.iso",
+    "source": { "type": "url", "url": "https://sourceforge.net/projects/systemrescuecd/files/latest/download" } },
+  { "id": "iso_rescuezilla", "group": "ISO de d\u00e9marrage", "name": "Rescuezilla (clonage)", "sizeMB": 1300, "default": true,
+    "target": "ventoy", "dest": "ISO\\Rescue\\rescuezilla.iso",
+    "source": { "type": "github", "repo": "rescuezilla/rescuezilla", "asset": ["(?i)64bit.*\\.iso$", "(?i)\\.iso$"] } },
+  { "id": "iso_memtest", "group": "ISO de d\u00e9marrage", "name": "Memtest86+", "sizeMB": 5, "default": true,
+    "target": "ventoy", "dest": "ISO\\Rescue\\memtest86plus.iso", "pick": "*.iso",
+    "source": { "type": "github", "repo": "memtest86plus/memtest86plus", "asset": ["(?i)64.*\\.iso\\.zip$", "(?i)64.*\\.iso$", "(?i)\\.iso(\\.zip)?$"] } },
+  { "id": "iso_eset", "group": "ISO de d\u00e9marrage", "name": "ESET SysRescue Live", "sizeMB": 800, "default": true,
+    "target": "ventoy", "dest": "ISO\\Antivirus\\eset_sysrescue.iso",
+    "source": { "type": "url", "url": "https://download.eset.com/com/eset/tools/recovery/rescue_cd/latest/eset_sysrescue_live_enu.iso" } },
+  { "id": "iso_krd", "group": "ISO de d\u00e9marrage", "name": "Kaspersky Rescue Disk", "sizeMB": 700, "default": false,
+    "target": "ventoy", "dest": "ISO\\Antivirus\\krd.iso",
+    "source": { "type": "url", "url": "https://rescuedisk.s.kaspersky-labs.com/updatable/2018/krd.iso" } },
+  { "id": "iso_win11", "group": "ISO de d\u00e9marrage", "name": "Windows 11 (page Microsoft)", "sizeMB": 0, "default": true,
+    "target": "ventoy", "dest": "ISO\\Windows\\Win11_FR_x64.iso",
+    "note": "Microsoft ne fournit pas de lien direct : t\u00e9l\u00e9charge l'ISO et renomme-la Win11_FR_x64.iso.",
+    "source": { "type": "page", "url": "https://www.microsoft.com/fr-fr/software-download/windows11" } },
+
+  { "id": "t_sysinternals", "group": "Contr\u00f4le & nettoyage", "name": "Sysinternals Suite", "sizeMB": 50, "default": true,
+    "target": "tools", "dest": "Tools\\20_Sysinternals", "extract": true, "check": "Tools\\20_Sysinternals\\Autoruns64.exe",
+    "source": { "type": "url", "url": "https://download.sysinternals.com/files/SysinternalsSuite.zip" } },
+  { "id": "t_kvrt", "group": "Contr\u00f4le & nettoyage", "name": "Kaspersky Virus Removal Tool", "sizeMB": 150, "default": true,
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\KVRT.exe",
+    "source": { "type": "url", "url": "https://devbuilds.s.kaspersky-labs.com/devbuilds/KVRT/latest/full/KVRT.exe" } },
+  { "id": "t_adwcleaner", "group": "Contr\u00f4le & nettoyage", "name": "AdwCleaner", "sizeMB": 10, "default": true,
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\adwcleaner.exe",
+    "source": { "type": "url", "url": "https://downloads.malwarebytes.com/file/adwcleaner" } },
+  { "id": "t_msert", "group": "Contr\u00f4le & nettoyage", "name": "Microsoft Safety Scanner", "sizeMB": 200, "default": true, "refresh": true,
+    "note": "Expire au bout de 10 jours : toujours re-t\u00e9l\u00e9charg\u00e9 lors d'une mise \u00e0 jour.",
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\MSERT.exe",
+    "source": { "type": "url", "url": "https://go.microsoft.com/fwlink/?LinkId=212732" } },
+  { "id": "t_esetonline", "group": "Contr\u00f4le & nettoyage", "name": "ESET Online Scanner", "sizeMB": 10, "default": true,
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\esetonlinescanner.exe",
+    "source": { "type": "url", "url": "https://download.eset.com/com/eset/tools/online_scanner/latest/esetonlinescanner.exe" } },
+  { "id": "t_hitmanpro", "group": "Contr\u00f4le & nettoyage", "name": "HitmanPro", "sizeMB": 15, "default": false,
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\HitmanPro_x64.exe",
+    "source": { "type": "url", "url": "https://dl.surfright.nl/HitmanPro_x64.exe" } },
+  { "id": "t_hayabusa", "group": "Contr\u00f4le & nettoyage", "name": "Hayabusa (analyse des journaux)", "sizeMB": 40, "default": true,
+    "target": "tools", "dest": "Tools\\60_Controle\\hayabusa", "extract": true, "check": "Tools\\60_Controle\\hayabusa\\hayabusa.exe",
+    "renameFrom": "hayabusa-*-win-x64.exe", "renameTo": "hayabusa.exe",
+    "source": { "type": "github", "repo": "Yamato-Security/hayabusa", "asset": ["(?i)^hayabusa-[\\d\\.]+-win-x64\\.zip$", "(?i)win-x64\\.zip$"] } },
+  { "id": "t_eek", "group": "Contr\u00f4le & nettoyage", "name": "Emsisoft Emergency Kit (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\50_Nettoyage\\EEK",
+    "note": "Auto-extractible : choisis Tools\\50_Nettoyage\\EEK comme dossier de destination.",
+    "source": { "type": "page", "url": "https://www.emsisoft.com/fr/emergency-kit/" } },
+
+  { "id": "t_putty", "group": "R\u00e9seau", "name": "PuTTY", "sizeMB": 4, "default": true,
+    "target": "tools", "dest": "Tools\\10_Reseau\\putty.exe",
+    "source": { "type": "url", "url": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe" } },
+  { "id": "t_iperf3", "group": "R\u00e9seau", "name": "iperf3", "sizeMB": 5, "default": true,
+    "target": "tools", "dest": "Tools\\10_Reseau\\iperf3", "extract": true, "check": "Tools\\10_Reseau\\iperf3\\iperf3.exe",
+    "source": { "type": "github", "repo": "ar51an/iperf3-win-builds", "asset": ["(?i)win64.*\\.zip$", "(?i)x64.*\\.zip$", "(?i)\\.zip$"] } },
+  { "id": "t_winscp", "group": "R\u00e9seau", "name": "WinSCP portable (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\10_Reseau\\WinSCP",
+    "source": { "type": "page", "url": "https://winscp.net/eng/downloads.php" } },
+  { "id": "t_wireshark", "group": "R\u00e9seau", "name": "Wireshark portable (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\10_Reseau\\WiresharkPortable64",
+    "source": { "type": "page", "url": "https://www.wireshark.org/download.html" } },
+  { "id": "t_ipscanner", "group": "R\u00e9seau", "name": "Advanced IP Scanner (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\10_Reseau\\AdvancedIPScanner",
+    "source": { "type": "page", "url": "https://www.advanced-ip-scanner.com/fr/" } },
+
+  { "id": "t_bsv", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "BlueScreenView", "sizeMB": 1, "default": true,
+    "target": "tools", "dest": "Tools\\30_Diag-Hardware", "extract": true, "check": "Tools\\30_Diag-Hardware\\BlueScreenView.exe",
+    "source": { "type": "url", "url": "https://www.nirsoft.net/utils/bluescreenview-x64.zip" } },
+  { "id": "t_produkey", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "ProduKey", "sizeMB": 1, "default": true,
+    "target": "tools", "dest": "Tools\\40_Recovery", "extract": true, "check": "Tools\\40_Recovery\\ProduKey.exe",
+    "source": { "type": "url", "url": "https://www.nirsoft.net/utils/produkey-x64.zip" } },
+  { "id": "t_hwinfo", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "HWiNFO portable (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\30_Diag-Hardware\\HWiNFO",
+    "source": { "type": "page", "url": "https://www.hwinfo.com/download/" } },
+  { "id": "t_cdi", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "CrystalDiskInfo portable (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\30_Diag-Hardware\\CrystalDiskInfo",
+    "source": { "type": "page", "url": "https://crystalmark.info/en/software/crystaldiskinfo/" } },
+  { "id": "t_testdisk", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "TestDisk / PhotoRec (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Tools\\40_Recovery\\testdisk",
+    "source": { "type": "page", "url": "https://www.cgsecurity.org/wiki/TestDisk_Download" } },
+
+  { "id": "t_npp", "group": "Syst\u00e8me", "name": "Notepad++ portable", "sizeMB": 7, "default": true,
+    "target": "tools", "dest": "Tools\\00_Base\\Notepad++", "extract": true, "check": "Tools\\00_Base\\Notepad++\\notepad++.exe",
+    "source": { "type": "github", "repo": "notepad-plus-plus/notepad-plus-plus", "asset": ["(?i)portable\\.x64\\.zip$"] } },
+  { "id": "t_sdio", "group": "Syst\u00e8me", "name": "Snappy Driver Installer Origin (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "Drivers\\SDIO\\SDIO_x64.exe",
+    "note": "Version Origin uniquement. Renomme l'ex\u00e9cutable SDIO_x64.exe.",
+    "source": { "type": "page", "url": "https://www.glenn.delahoy.com/snappy-driver-installer-origin/" } },
+
+  { "id": "ia_kobold", "group": "IA hors ligne", "name": "KoboldCpp (CPU)", "sizeMB": 100, "default": false,
+    "target": "tools", "dest": "IA\\bin\\koboldcpp.exe",
+    "source": { "type": "github", "repo": "LostRuins/koboldcpp", "asset": ["(?i)^koboldcpp_nocuda\\.exe$", "(?i)^koboldcpp\\.exe$"] } },
+  { "id": "ia_model", "group": "IA hors ligne", "name": "Mod\u00e8le GGUF 3-4B Q4 (page)", "sizeMB": 0, "default": false,
+    "target": "tools", "dest": "IA\\models",
+    "note": "Choisis un mod\u00e8le r\u00e9cent en Q4_K_M (2-3 Go) et d\u00e9pose le .gguf dans IA\\models.",
+    "source": { "type": "page", "url": "https://huggingface.co/models?library=gguf&sort=trending" } }
+]
+'@ | ConvertFrom-Json
 # ---------------------------------------------------------------- xaml
 $inputXML = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -572,6 +675,78 @@ $inputXML = @'
               </ScrollViewer>
             </DockPanel>
           </Border>
+        </Grid>
+      </TabItem>
+
+      <!-- ===================== CREER MA CLE ===================== -->
+      <TabItem Header="Cr&#x00E9;er ma cl&#x00E9;">
+        <Grid Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,12,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel>
+                <TextBlock Text="1. CL&#x00C9; USB" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                <DockPanel>
+                  <Button x:Name="BtnUsbRefresh" DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Actualiser" Margin="6,0,0,0" Padding="8,4"/>
+                  <ComboBox x:Name="CmbUsbDisk" DisplayMemberPath="Display" VerticalContentAlignment="Center"/>
+                </DockPanel>
+                <TextBlock x:Name="TxtUsbInfo" TextWrapping="Wrap" Foreground="#8B949E" FontSize="11.5" Margin="0,6,0,0"/>
+
+                <TextBlock Text="2. OPTIONS" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,16,0,6"/>
+                <CheckBox x:Name="ChkUsbUpdate" Content="Mettre &#x00E0; jour sans effacer" IsEnabled="False"/>
+                <TextBlock Text="Cl&#x00E9; Tech Toolkit existante : outils, th&#x00E8;me et toolkit.ps1 sont rafra&#x00EE;chis. Tes ventoy.json et tools.json sont conserv&#x00E9;s."
+                           TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="22,0,0,4"/>
+                <CheckBox x:Name="ChkUsbVentoyUpdate" Content="Mettre &#x00E0; jour Ventoy aussi" IsEnabled="False" Margin="22,2,0,2"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                  <TextBlock Text="Partition TOOLS (Go)" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <TextBox x:Name="TxtToolsSize" Width="60" Text="27" Background="#0D1117" Foreground="#E6EDF3" BorderBrush="#30363D" Padding="4,2"/>
+                </StackPanel>
+                <TextBlock Text="Le reste de la cl&#x00E9; va &#x00E0; la partition Ventoy (ISO + Collecte)." TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="0,2,0,6"/>
+                <CheckBox x:Name="ChkUsbForce" Content="Re-t&#x00E9;l&#x00E9;charger les fichiers d&#x00E9;j&#x00E0; pr&#x00E9;sents"/>
+                <CheckBox x:Name="ChkUsbLock" Content="Verrouiller TOOLS en lecture seule &#x00E0; la fin" IsChecked="True"/>
+
+                <TextBlock x:Name="TxtUsbSize" Foreground="#E6EDF3" Margin="0,14,0,4"/>
+                <Button x:Name="BtnUsbCreate" Style="{StaticResource BtnAccent}" Content="Cr&#x00E9;er la cl&#x00E9;" Margin="0,4,0,6"/>
+                <TextBlock TextWrapping="Wrap" Foreground="#F85149" FontSize="11"
+                           Text="Cr&#x00E9;ation : la cl&#x00E9; s&#x00E9;lectionn&#x00E9;e est ENTI&#x00C8;REMENT effac&#x00E9;e. Seuls les disques USB sont propos&#x00E9;s ; le disque syst&#x00E8;me et la cl&#x00E9; qui ex&#x00E9;cute l'outil sont exclus."/>
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+          <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14,4,14,10">
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="UsbPanel"/>
+              </ScrollViewer>
+            </Border>
+            <Border Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Margin="0,10,0,0">
+              <DataGrid x:Name="GridUsb" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                        HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262D"
+                        Background="Transparent" RowBackground="#161B22" AlternatingRowBackground="#121821"
+                        Foreground="#C9D1D9" BorderThickness="0">
+                <DataGrid.RowStyle>
+                  <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Resultat}" Value="Erreur"><Setter Property="Foreground" Value="#F85149"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Resultat}" Value="Manuel"><Setter Property="Foreground" Value="#D29922"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Resultat}" Value="OK"><Setter Property="Foreground" Value="#3FB950"/></DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Composant" Binding="{Binding Composant}" Width="220"/>
+                  <DataGridTextColumn Header="R&#x00E9;sultat" Binding="{Binding Resultat}" Width="100"/>
+                  <DataGridTextColumn Header="D&#x00E9;tail" Binding="{Binding Detail}" Width="*"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Border>
+          </Grid>
         </Grid>
       </TabItem>
 
@@ -1157,6 +1332,312 @@ function Get-TKTweakStates {
     }
     return $h
 }
+# ---------------------------------------------------------------- Usb.ps1
+################################################################################
+#  Creation / mise a jour de la cle USB Tech Toolkit
+################################################################################
+
+function Get-TKUsbDisks {
+    <# Disques USB eligibles : jamais le disque systeme/boot, jamais la cle qui execute l'outil #>
+    $self = $null
+    if ($sync.Root) {
+        try { $self = (Get-Partition -DriveLetter ((Split-Path $sync.Root -Qualifier).TrimEnd(':')) -ErrorAction Stop).DiskNumber } catch {}
+    }
+    @(Get-Disk | Where-Object { $_.BusType -eq 'USB' -and -not $_.IsBoot -and -not $_.IsSystem -and $_.Number -ne $self -and $_.Size -gt 0 } |
+        ForEach-Object {
+            $labels = @(Get-Partition -DiskNumber $_.Number -ErrorAction SilentlyContinue | Get-Volume -ErrorAction SilentlyContinue | ForEach-Object { $_.FileSystemLabel })
+            [pscustomobject]@{
+                Number   = $_.Number
+                Name     = $_.FriendlyName
+                SizeGB   = [math]::Round($_.Size / 1GB, 1)
+                IsKit    = ($labels -contains 'Ventoy') -and ($labels -contains 'TOOLS')
+                IsVentoy = ($labels -contains 'Ventoy')
+                Display  = ('Disque {0}  -  {1}  -  {2} Go' -f $_.Number, $_.FriendlyName, [math]::Round($_.Size / 1GB, 1))
+            }
+        })
+}
+
+function Get-TKHttp {
+    if (-not $sync.Http) {
+        Add-Type -AssemblyName System.Net.Http
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+        $h = New-Object System.Net.Http.HttpClientHandler
+        $h.AllowAutoRedirect = $true
+        $c = New-Object System.Net.Http.HttpClient -ArgumentList $h
+        $c.Timeout = [TimeSpan]::FromHours(3)
+        $c.DefaultRequestHeaders.UserAgent.ParseAdd('Mozilla/5.0 (Windows NT 10.0; Win64; x64) TechToolkit/1.0')
+        $sync.Http = $c
+    }
+    $sync.Http
+}
+
+function Get-TKDownload {
+    <# Telechargement en flux avec progression dans la barre de statut #>
+    param([Parameter(Mandatory)][string]$Url, [Parameter(Mandatory)][string]$OutFile, [string]$Label = 'Téléchargement')
+    $http = Get-TKHttp
+    $resp = $http.GetAsync($Url, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead).GetAwaiter().GetResult()
+    if (-not $resp.IsSuccessStatusCode) { $code = [int]$resp.StatusCode; $resp.Dispose(); throw "HTTP $code sur $Url" }
+    $total = $resp.Content.Headers.ContentLength
+    $in = $resp.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+    $tmp = "$OutFile.part"
+    $out = [IO.File]::Create($tmp)
+    try {
+        $buf = New-Object byte[] 1048576
+        $done = 0L; $last = -1
+        while (($n = $in.Read($buf, 0, $buf.Length)) -gt 0) {
+            $out.Write($buf, 0, $n)
+            $done += $n
+            if ($total) {
+                $pct = [int]($done * 100 / $total)
+                if ($pct -ne $last) { $last = $pct; Set-TKStatus ('{0} : {1} % ({2:N0} / {3:N0} Mo)' -f $Label, $pct, ($done / 1MB), ($total / 1MB)) }
+            } elseif (($done % 20MB) -lt $n) {
+                Set-TKStatus ('{0} : {1:N0} Mo' -f $Label, ($done / 1MB))
+            }
+        }
+    } finally { $out.Dispose(); $in.Dispose(); $resp.Dispose() }
+    if ((Get-Item -LiteralPath $tmp).Length -lt 1024) {
+        $head = [IO.File]::ReadAllText($tmp)
+        Remove-Item -LiteralPath $tmp -Force
+        throw "Fichier reçu trop petit (page d'erreur ?) : $($head.Substring(0, [math]::Min(120, $head.Length)))"
+    }
+    Move-Item -LiteralPath $tmp -Destination $OutFile -Force
+}
+
+function Resolve-TKGithubAsset {
+    param([string]$Repo, [string[]]$Patterns)
+    $json = (Get-TKHttp).GetStringAsync("https://api.github.com/repos/$Repo/releases/latest").GetAwaiter().GetResult() | ConvertFrom-Json
+    foreach ($p in $Patterns) {
+        $a = @($json.assets | Where-Object { $_.name -match $p }) | Select-Object -First 1
+        if ($a) { return [pscustomobject]@{ Url = $a.browser_download_url; Name = $a.name; Version = $json.tag_name } }
+    }
+    throw "Aucun fichier correspondant dans la dernière version de $Repo ($($json.tag_name))"
+}
+
+function Expand-TKArchive {
+    <# Extrait un zip et renvoie le dossier utile (descend si le zip contient un seul dossier) #>
+    param([string]$Zip, [string]$To)
+    if (Test-Path -LiteralPath $To) { Remove-Item -LiteralPath $To -Recurse -Force }
+    Expand-Archive -LiteralPath $Zip -DestinationPath $To -Force
+    $dir = $To
+    while ($true) {
+        $items = @(Get-ChildItem -LiteralPath $dir -Force)
+        if ($items.Count -eq 1 -and $items[0].PSIsContainer) { $dir = $items[0].FullName } else { break }
+    }
+    return $dir
+}
+
+function Wait-TKVolume {
+    param([int]$DiskNumber, [string]$Label, [int]$TimeoutSec = 45)
+    for ($i = 0; $i -lt $TimeoutSec; $i++) {
+        Update-HostStorageCache -ErrorAction SilentlyContinue
+        $part = Get-Partition -DiskNumber $DiskNumber -ErrorAction SilentlyContinue |
+                Where-Object { ($_ | Get-Volume -ErrorAction SilentlyContinue).FileSystemLabel -eq $Label } | Select-Object -First 1
+        if ($part) {
+            if ("$($part.DriveLetter)" -notmatch '^[A-Za-z]$') {
+                $part | Add-PartitionAccessPath -AssignDriveLetter -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+                $part = Get-Partition -DiskNumber $DiskNumber -PartitionNumber $part.PartitionNumber
+            }
+            if ("$($part.DriveLetter)" -match '^[A-Za-z]$') { return $part }
+        }
+        Start-Sleep -Seconds 1
+    }
+    throw "Partition '$Label' introuvable sur le disque $DiskNumber"
+}
+
+function Install-TKVentoy {
+    param([int]$DiskNumber, [string]$Work, [ValidateSet('Install', 'Update')][string]$Mode, [int]$ReserveMB)
+    $asset = Resolve-TKGithubAsset -Repo 'ventoy/Ventoy' -Patterns @('(?i)windows\.zip$')
+    Write-TKLog "Ventoy $($asset.Version) : téléchargement..." 'INFO'
+    $zip = Join-Path $Work 'ventoy.zip'
+    Get-TKDownload -Url $asset.Url -OutFile $zip -Label "Ventoy $($asset.Version)"
+    $dir = Expand-TKArchive -Zip $zip -To (Join-Path $Work 'ventoy')
+    $exe = Get-ChildItem -LiteralPath $dir -Recurse -Filter 'Ventoy2Disk.exe' | Where-Object { $_.FullName -notmatch '\\altexe\\' } | Select-Object -First 1
+    if (-not $exe) { throw 'Ventoy2Disk.exe introuvable dans l''archive' }
+    $wd = $exe.DirectoryName
+    Remove-Item (Join-Path $wd 'cli_*.txt') -Force -ErrorAction SilentlyContinue
+
+    $cliArgs = if ($Mode -eq 'Install') { "VTOYCLI /I /PhyDrive:$DiskNumber /GPT /R:$ReserveMB" } else { "VTOYCLI /U /PhyDrive:$DiskNumber" }
+    Write-TKLog "Ventoy2Disk $cliArgs" 'INFO'
+    $p = Start-Process -FilePath $exe.FullName -ArgumentList $cliArgs -WorkingDirectory $wd -PassThru -WindowStyle Hidden
+    $doneFile = Join-Path $wd 'cli_done.txt'
+    $pctFile = Join-Path $wd 'cli_percent.txt'
+    $limit = (Get-Date).AddMinutes(20)
+    while (-not (Test-Path $doneFile) -and (Get-Date) -lt $limit) {
+        $pct = Get-Content $pctFile -ErrorAction SilentlyContinue | Select-Object -First 1
+        Set-TKStatus ("Ventoy : {0} {1} %" -f $(if ($Mode -eq 'Install') { 'installation' } else { 'mise à jour' }), $pct)
+        if ($p.HasExited -and -not (Test-Path $doneFile)) { Start-Sleep -Seconds 3; break }
+        Start-Sleep -Milliseconds 700
+    }
+    $result = (Get-Content $doneFile -ErrorAction SilentlyContinue | Select-Object -First 1)
+    if ("$result".Trim() -ne '0') {
+        $log = (Get-Content (Join-Path $wd 'cli_log.txt') -Tail 8 -ErrorAction SilentlyContinue) -join ' | '
+        throw "Échec Ventoy (cli_done=$result). $log"
+    }
+    Write-TKLog "Ventoy $($asset.Version) : $(if ($Mode -eq 'Install') { 'installé' } else { 'mis à jour' })." 'OK'
+}
+
+function Get-TKKitSource {
+    <# Dossier contenant usb\, dist\toolkit.ps1, launcher\ : depot local si dispo, sinon zip GitHub #>
+    param([string]$Work)
+    if ($sync.Root) {
+        foreach ($cand in @((Split-Path $sync.Root -Parent), $sync.Root)) {
+            if ($cand -and (Test-Path (Join-Path $cand 'usb\VENTOY')) -and (Test-Path (Join-Path $cand 'dist\toolkit.ps1'))) {
+                Write-TKLog "Kit : dépôt local $cand" 'INFO'
+                return $cand
+            }
+        }
+    }
+    $zip = Join-Path $Work 'kit.zip'
+    Get-TKDownload -Url $sync.RepoZip -OutFile $zip -Label 'Kit Tech Toolkit'
+    return (Expand-TKArchive -Zip $zip -To (Join-Path $Work 'kit'))
+}
+
+function Copy-TKTree {
+    param([string]$From, [string]$To, [string[]]$KeepIfExists = @())
+    foreach ($f in Get-ChildItem -LiteralPath $From -Recurse -File -Force) {
+        if ($f.Name -eq '.keep') { $dirOnly = $true } else { $dirOnly = $false }
+        $rel = $f.FullName.Substring($From.Length).TrimStart('\')
+        $dst = Join-Path $To $rel
+        $dstDir = Split-Path $dst -Parent
+        if (-not (Test-Path -LiteralPath $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
+        if ($dirOnly) { continue }
+        if ((Test-Path -LiteralPath $dst) -and ($KeepIfExists -contains $rel)) { continue }
+        Copy-Item -LiteralPath $f.FullName -Destination $dst -Force
+    }
+}
+
+function Install-TKUsbComponent {
+    param([Parameter(Mandatory)]$C, [string]$VentoyRoot, [string]$ToolsRoot, [string]$Work, [bool]$Force)
+    $base = if ($C.target -eq 'ventoy') { $VentoyRoot } else { $ToolsRoot }
+    $dest = Join-Path $base $C.dest
+    $check = if ($C.check) { Join-Path $base $C.check } else { $dest }
+    $res = { param($r, $d) [pscustomobject]@{ Composant = $C.name; Resultat = $r; Detail = $d } }
+
+    if ($C.source.type -eq 'page') {
+        return (& $res 'Manuel' "Page ouverte, à déposer dans $dest")
+    }
+    if ((Test-Path -LiteralPath $check) -and -not $Force -and -not $C.refresh) {
+        return (& $res 'Déjà présent' $check)
+    }
+
+    $url = $C.source.url; $name = $null; $ver = ''
+    if ($C.source.type -eq 'github') {
+        $a = Resolve-TKGithubAsset -Repo $C.source.repo -Patterns @($C.source.asset)
+        $url = $a.Url; $name = $a.Name; $ver = $a.Version
+    }
+    $isZip = [bool]$C.extract -or ($name -match '\.zip$')
+    $ext = if ($isZip) { '.zip' } elseif ($name) { [IO.Path]::GetExtension($name) } else { [IO.Path]::GetExtension($dest) }
+    $tmp = Join-Path $Work ($C.id + $ext)
+    Get-TKDownload -Url $url -OutFile $tmp -Label $C.name
+
+    if ($isZip) {
+        $x = Expand-TKArchive -Zip $tmp -To (Join-Path $Work "$($C.id)_x")
+        if ($C.pick) {
+            $f = Get-ChildItem -LiteralPath $x -Recurse -Filter $C.pick | Select-Object -First 1
+            if (-not $f) { throw "Aucun fichier $($C.pick) dans l'archive" }
+            New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+            Copy-Item -LiteralPath $f.FullName -Destination $dest -Force
+        } else {
+            New-Item -ItemType Directory -Path $dest -Force | Out-Null
+            Copy-Item -Path (Join-Path $x '*') -Destination $dest -Recurse -Force
+        }
+        if ($C.renameFrom) {
+            $f = Get-ChildItem -LiteralPath $dest -Filter $C.renameFrom | Where-Object { $_.Name -ne $C.renameTo } | Select-Object -First 1
+            if ($f) { Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $dest $C.renameTo) -Force }
+        }
+        Remove-Item -LiteralPath (Join-Path $Work "$($C.id)_x") -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+    } else {
+        New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+        Move-Item -LiteralPath $tmp -Destination $dest -Force
+    }
+    Write-TKLog "$($C.name) $ver : OK" 'OK'
+    return (& $res 'OK' ("$ver $dest").Trim())
+}
+
+function New-TKUsbKey {
+    <# Tache de fond : installe ou met a jour la cle complete #>
+    param([int]$DiskNumber, [int]$ToolsGB, [string[]]$Components, [bool]$UpdateOnly, [bool]$UpdateVentoy, [bool]$Force, [bool]$Lock)
+    $report = New-Object System.Collections.Generic.List[object]
+    $pages = New-Object System.Collections.Generic.List[string]
+    $work = Join-Path $env:TEMP 'TechToolkit\usb'
+    New-Item -ItemType Directory -Path $work -Force | Out-Null
+
+    # Garde-fous (re-verifies ici, juste avant d'ecrire)
+    $disk = Get-Disk -Number $DiskNumber -ErrorAction Stop
+    if ($disk.BusType -ne 'USB' -or $disk.IsBoot -or $disk.IsSystem) { throw "Disque $DiskNumber refusé (pas USB, ou disque système)." }
+    if (-not $UpdateOnly -and $disk.Size -lt 16GB) { throw 'Clé trop petite : 16 Go minimum (32 Go conseillés).' }
+
+    # 1. Ventoy
+    if (-not $UpdateOnly) {
+        Install-TKVentoy -DiskNumber $DiskNumber -Work $work -Mode 'Install' -ReserveMB ($ToolsGB * 1024)
+    } elseif ($UpdateVentoy) {
+        Install-TKVentoy -DiskNumber $DiskNumber -Work $work -Mode 'Update' -ReserveMB 0
+    }
+
+    # 2. Partitions
+    Set-TKStatus 'Partitions...'
+    $vPart = Wait-TKVolume -DiskNumber $DiskNumber -Label 'Ventoy'
+    if (-not $UpdateOnly) {
+        $free = (Get-Disk -Number $DiskNumber).LargestFreeExtent
+        if ($free -lt 1GB) { throw 'Pas d''espace réservé pour la partition TOOLS après Ventoy.' }
+        Write-TKLog ('Création de la partition TOOLS ({0:N1} Go)...' -f ($free / 1GB)) 'INFO'
+        New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter |
+            Format-Volume -FileSystem NTFS -NewFileSystemLabel 'TOOLS' -Confirm:$false | Out-Null
+    }
+    $tPart = Wait-TKVolume -DiskNumber $DiskNumber -Label 'TOOLS'
+    if ($tPart.IsReadOnly) {
+        Set-Partition -DiskNumber $DiskNumber -PartitionNumber $tPart.PartitionNumber -IsReadOnly $false
+        Write-TKLog 'TOOLS déverrouillée pour la mise à jour.' 'INFO'
+    }
+    $V = "$($vPart.DriveLetter):\"
+    $T = "$($tPart.DriveLetter):\"
+    Write-TKLog "Ventoy = $V   TOOLS = $T" 'INFO'
+
+    # 3. Kit (theme, menus, scripts, Tech Toolkit lui-meme)
+    Set-TKStatus 'Copie du kit...'
+    $src = Get-TKKitSource -Work $work
+    Copy-TKTree -From (Join-Path $src 'usb\VENTOY') -To $V -KeepIfExists @('ventoy\ventoy.json')
+    Copy-TKTree -From (Join-Path $src 'usb\TOOLS') -To $T -KeepIfExists @('tools.json', 'Deploy\PostInstall\postinstall.ps1')
+    Copy-Item -LiteralPath (Join-Path $src 'dist\toolkit.ps1') -Destination $T -Force
+    Copy-Item -LiteralPath (Join-Path $src 'launcher\START.bat') -Destination $T -Force
+    $report.Add([pscustomobject]@{ Composant = 'Kit Tech Toolkit'; Resultat = 'OK'; Detail = 'thème Ventoy, menus, scripts, toolkit.ps1' })
+
+    # 4. Composants
+    $list = @($sync.configs.usb | Where-Object { $Components -contains $_.id })
+    $i = 0
+    foreach ($c in $list) {
+        $i++
+        Set-TKStatus ("Composant {0}/{1} : {2}" -f $i, $list.Count, $c.name)
+        try {
+            $r = Install-TKUsbComponent -C $c -VentoyRoot $V -ToolsRoot $T -Work $work -Force $Force
+            $report.Add($r)
+            if ($r.Resultat -eq 'Manuel') { $pages.Add($c.source.url); if ($c.note) { Write-TKLog "$($c.name) : $($c.note)" 'WARN' } }
+        } catch {
+            Write-TKLog "$($c.name) : $($_.Exception.Message)" 'ERR'
+            $report.Add([pscustomobject]@{ Composant = $c.name; Resultat = 'Erreur'; Detail = $_.Exception.Message })
+        }
+    }
+
+    # 5. Empreintes + verrouillage
+    $integrity = Join-Path $T 'Scripts\integrity.ps1'
+    if (Test-Path -LiteralPath $integrity) {
+        Set-TKStatus 'Calcul des empreintes SHA256...'
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $integrity -Init | Out-Null
+        Write-TKLog 'Manifeste d''intégrité généré.' 'OK'
+    }
+    if ($Lock) {
+        Set-Partition -DiskNumber $DiskNumber -PartitionNumber $tPart.PartitionNumber -IsReadOnly $true
+        Write-TKLog 'TOOLS verrouillée en lecture seule.' 'OK'
+        if ($pages.Count) { Write-TKLog 'Pour déposer les fichiers à télécharger à la main sur TOOLS : Scripts\lock.ps1 -Unlock, puis relock.' 'WARN' }
+    }
+    Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
+
+    $ko = @($report | Where-Object Resultat -eq 'Erreur').Count
+    Write-TKLog ("Clé prête : {0} OK, {1} erreur(s), {2} à faire à la main." -f @($report | Where-Object Resultat -in 'OK', 'Déjà présent').Count, $ko, $pages.Count) $(if ($ko) { 'WARN' } else { 'OK' })
+    [pscustomobject]@{ Report = $report.ToArray(); Pages = $pages.ToArray(); Ventoy = $V; Tools = $T }
+}
 # ---------------------------------------------------------------- main.ps1
 ################################################################################
 #  Interface
@@ -1358,8 +1839,118 @@ if ($sync.Mode -eq 'USB' -and $sync.PortableTools.Count) {
     $sync.TxtToolsInfo.Text = 'Disponible quand Tech Toolkit est lancé depuis la clé USB (START.bat sur la partition TOOLS).'
 }
 
+# --- Onglet Creer ma cle ---
+$sync.UsbChecks = @{}
+$usbGroups = New-Object System.Collections.Generic.List[string]
+foreach ($c in $sync.configs.usb) { if (-not $usbGroups.Contains($c.group)) { $usbGroups.Add($c.group) } }
+
+function Update-TKUsbSize {
+    $mb = 0; $manual = 0
+    foreach ($c in $sync.configs.usb) {
+        if (-not $sync.UsbChecks[$c.id].IsChecked) { continue }
+        if ($c.source.type -eq 'page') { $manual++ } else { $mb += [int]$c.sizeMB }
+    }
+    $sync.TxtUsbSize.Text = ('Téléchargement estimé : {0:N1} Go{1}' -f ($mb / 1024), $(if ($manual) { "  +  $manual page(s) à ouvrir" } else { '' }))
+}
+
+foreach ($g in $usbGroups) {
+    $h = New-TKText $g.ToUpper() 11 '#58A6FF' 'Bold'
+    $h.Margin = New-TKThickness 0 12 0 4
+    [void]$sync.UsbPanel.Children.Add($h)
+    foreach ($c in @($sync.configs.usb | Where-Object { $_.group -eq $g })) {
+        $row = New-Object System.Windows.Controls.DockPanel
+        $info = if ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
+        $sz = New-TKText $info 11 $(if ($c.source.type -eq 'page') { '#D29922' } else { '#8B949E' })
+        $sz.Width = 140; $sz.TextAlignment = 'Right'; $sz.VerticalAlignment = 'Center'
+        [System.Windows.Controls.DockPanel]::SetDock($sz, 'Right')
+        [void]$row.Children.Add($sz)
+        $cb = New-Object System.Windows.Controls.CheckBox
+        $cb.Content = $c.name; $cb.Tag = $c.id; $cb.IsChecked = [bool]$c.default
+        $tip = "Destination : $(if ($c.target -eq 'ventoy') { 'Ventoy' } else { 'TOOLS' })\$($c.dest)"
+        if ($c.note) { $tip += "`n$($c.note)" }
+        $cb.ToolTip = $tip
+        $cb.Add_Click({ Update-TKUsbSize })
+        [void]$row.Children.Add($cb)
+        [void]$sync.UsbPanel.Children.Add($row)
+        $sync.UsbChecks[$c.id] = $cb
+    }
+}
+
+function Update-TKUsbDisks {
+    $sync.UsbDisks = Get-TKUsbDisks
+    $sync.CmbUsbDisk.ItemsSource = $sync.UsbDisks
+    if ($sync.UsbDisks.Count) { $sync.CmbUsbDisk.SelectedIndex = 0 }
+    else {
+        $sync.TxtUsbInfo.Text = 'Aucune clé USB éligible détectée. Branche la clé puis clique sur Actualiser.'
+        $sync.ChkUsbUpdate.IsChecked = $false; $sync.ChkUsbUpdate.IsEnabled = $false
+    }
+}
+$sync.CmbUsbDisk.Add_SelectionChanged({
+    $d = $sync.CmbUsbDisk.SelectedItem
+    if (-not $d) { return }
+    $sync.TxtToolsSize.Text = [string][math]::Max(4, [math]::Min(27, [math]::Floor($d.SizeGB * 0.45)))
+    if ($d.IsKit) {
+        $sync.TxtUsbInfo.Text = 'Clé Tech Toolkit détectée : la mise à jour sans effacement est proposée.'
+        $sync.ChkUsbUpdate.IsEnabled = $true; $sync.ChkUsbUpdate.IsChecked = $true
+    } else {
+        $sync.TxtUsbInfo.Text = $(if ($d.IsVentoy) { 'Clé Ventoy sans partition TOOLS : elle sera recréée entièrement.' }
+                                elseif ($d.SizeGB -lt 16) { 'Clé trop petite : 16 Go minimum, 32 Go conseillés.' }
+                                else { 'Clé vierge ou autre contenu : elle sera entièrement effacée.' })
+        $sync.ChkUsbUpdate.IsChecked = $false; $sync.ChkUsbUpdate.IsEnabled = $false
+    }
+})
+$usbModeChanged = {
+    $upd = [bool]$sync.ChkUsbUpdate.IsChecked
+    $sync.ChkUsbVentoyUpdate.IsEnabled = $upd
+    if (-not $upd) { $sync.ChkUsbVentoyUpdate.IsChecked = $false }
+    $sync.TxtToolsSize.IsEnabled = -not $upd
+    $sync.BtnUsbCreate.Content = $(if ($upd) { 'Mettre à jour la clé' } else { 'Créer la clé' })
+}
+$sync.ChkUsbUpdate.Add_Checked($usbModeChanged)
+$sync.ChkUsbUpdate.Add_Unchecked($usbModeChanged)
+$sync.BtnUsbRefresh.Add_Click({ Update-TKUsbDisks })
+
+$sync.BtnUsbCreate.Add_Click({
+    $d = $sync.CmbUsbDisk.SelectedItem
+    if (-not $d) { Write-TKLog 'Sélectionne une clé USB.' 'WARN'; return }
+    $upd = [bool]$sync.ChkUsbUpdate.IsChecked
+    $ids = @($sync.configs.usb | Where-Object { $sync.UsbChecks[$_.id].IsChecked } | ForEach-Object { $_.id })
+    $gb = 0
+    if (-not $upd) {
+        if (-not [int]::TryParse($sync.TxtToolsSize.Text, [ref]$gb) -or $gb -lt 4 -or $gb -gt ($d.SizeGB - 8)) {
+            [void][System.Windows.MessageBox]::Show("Taille TOOLS invalide : entre 4 et $([math]::Floor($d.SizeGB - 8)) Go.", 'Tech Toolkit', 'OK', 'Warning'); return
+        }
+        if ($d.SizeGB -lt 16) { [void][System.Windows.MessageBox]::Show('Clé trop petite (16 Go minimum).', 'Tech Toolkit', 'OK', 'Warning'); return }
+        Add-Type -AssemblyName Microsoft.VisualBasic
+        $msg = "TOUT le contenu de cette clé va être effacé :`n`n    $($d.Display)`n`nTape EFFACER pour confirmer."
+        $answer = [Microsoft.VisualBasic.Interaction]::InputBox($msg, 'Tech Toolkit - création de la clé', '')
+        if ($answer -cne 'EFFACER') { Write-TKLog 'Création annulée.' 'INFO'; return }
+    } else {
+        if ([System.Windows.MessageBox]::Show("Mettre à jour la clé $($d.Display) sans effacer ses données ?", 'Tech Toolkit', 'YesNo', 'Question') -ne 'Yes') { return }
+    }
+    $sync.GridUsb.ItemsSource = $null
+    Start-TKJob -Name $(if ($upd) { 'Mise à jour de la clé' } else { 'Création de la clé' }) `
+        -ScriptBlock { param($DiskNumber, $ToolsGB, $Components, $UpdateOnly, $UpdateVentoy, $Force, $Lock)
+                       New-TKUsbKey -DiskNumber $DiskNumber -ToolsGB $ToolsGB -Components $Components -UpdateOnly $UpdateOnly -UpdateVentoy $UpdateVentoy -Force $Force -Lock $Lock } `
+        -Arguments @{ DiskNumber = [int]$d.Number; ToolsGB = $gb; Components = $ids; UpdateOnly = $upd
+                      UpdateVentoy = [bool]$sync.ChkUsbVentoyUpdate.IsChecked; Force = [bool]$sync.ChkUsbForce.IsChecked; Lock = [bool]$sync.ChkUsbLock.IsChecked } `
+        -OnDone {
+            param($r)
+            $res = @($r) | Where-Object { $_.Report } | Select-Object -Last 1
+            Update-TKUsbDisks
+            if (-not $res) { Write-TKLog 'La préparation de la clé s''est interrompue (voir les erreurs ci-dessus).' 'ERR'; return }
+            $sync.GridUsb.ItemsSource = @($res.Report)
+            if ($res.Pages.Count) {
+                $msg = "$($res.Pages.Count) élément(s) ne peuvent pas être téléchargés automatiquement. Ouvrir leurs pages de téléchargement ?`n`nLes destinations sont indiquées dans le tableau (colonne Détail)."
+                if ([System.Windows.MessageBox]::Show($msg, 'Tech Toolkit', 'YesNo', 'Information') -eq 'Yes') { foreach ($u in $res.Pages) { Start-Process $u } }
+            }
+        }
+})
+Update-TKUsbSize
+Update-TKUsbDisks
+
 # --- Boucle UI : journal, statut, fin des taches ---
-$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup)
+$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh)
 $timer = New-Object System.Windows.Threading.DispatcherTimer
 $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({

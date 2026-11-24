@@ -206,6 +206,78 @@
         </Grid>
       </TabItem>
 
+      <!-- ===================== CREER MA CLE ===================== -->
+      <TabItem Header="Créer ma clé">
+        <Grid Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Border Grid.Column="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,12,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel>
+                <TextBlock Text="1. CLÉ USB" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,0,0,6"/>
+                <DockPanel>
+                  <Button x:Name="BtnUsbRefresh" DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Actualiser" Margin="6,0,0,0" Padding="8,4"/>
+                  <ComboBox x:Name="CmbUsbDisk" DisplayMemberPath="Display" VerticalContentAlignment="Center"/>
+                </DockPanel>
+                <TextBlock x:Name="TxtUsbInfo" TextWrapping="Wrap" Foreground="#8B949E" FontSize="11.5" Margin="0,6,0,0"/>
+
+                <TextBlock Text="2. OPTIONS" Foreground="#8B949E" FontSize="11" FontWeight="Bold" Margin="0,16,0,6"/>
+                <CheckBox x:Name="ChkUsbUpdate" Content="Mettre à jour sans effacer" IsEnabled="False"/>
+                <TextBlock Text="Clé Tech Toolkit existante : outils, thème et toolkit.ps1 sont rafraîchis. Tes ventoy.json et tools.json sont conservés."
+                           TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="22,0,0,4"/>
+                <CheckBox x:Name="ChkUsbVentoyUpdate" Content="Mettre à jour Ventoy aussi" IsEnabled="False" Margin="22,2,0,2"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                  <TextBlock Text="Partition TOOLS (Go)" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <TextBox x:Name="TxtToolsSize" Width="60" Text="27" Background="#0D1117" Foreground="#E6EDF3" BorderBrush="#30363D" Padding="4,2"/>
+                </StackPanel>
+                <TextBlock Text="Le reste de la clé va à la partition Ventoy (ISO + Collecte)." TextWrapping="Wrap" Foreground="#8B949E" FontSize="11" Margin="0,2,0,6"/>
+                <CheckBox x:Name="ChkUsbForce" Content="Re-télécharger les fichiers déjà présents"/>
+                <CheckBox x:Name="ChkUsbLock" Content="Verrouiller TOOLS en lecture seule à la fin" IsChecked="True"/>
+
+                <TextBlock x:Name="TxtUsbSize" Foreground="#E6EDF3" Margin="0,14,0,4"/>
+                <Button x:Name="BtnUsbCreate" Style="{StaticResource BtnAccent}" Content="Créer la clé" Margin="0,4,0,6"/>
+                <TextBlock TextWrapping="Wrap" Foreground="#F85149" FontSize="11"
+                           Text="Création : la clé sélectionnée est ENTIÈREMENT effacée. Seuls les disques USB sont proposés ; le disque système et la clé qui exécute l'outil sont exclus."/>
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+          <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14,4,14,10">
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="UsbPanel"/>
+              </ScrollViewer>
+            </Border>
+            <Border Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Margin="0,10,0,0">
+              <DataGrid x:Name="GridUsb" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                        HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#21262D"
+                        Background="Transparent" RowBackground="#161B22" AlternatingRowBackground="#121821"
+                        Foreground="#C9D1D9" BorderThickness="0">
+                <DataGrid.RowStyle>
+                  <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Resultat}" Value="Erreur"><Setter Property="Foreground" Value="#F85149"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Resultat}" Value="Manuel"><Setter Property="Foreground" Value="#D29922"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Resultat}" Value="OK"><Setter Property="Foreground" Value="#3FB950"/></DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Composant" Binding="{Binding Composant}" Width="220"/>
+                  <DataGridTextColumn Header="Résultat" Binding="{Binding Resultat}" Width="100"/>
+                  <DataGridTextColumn Header="Détail" Binding="{Binding Detail}" Width="*"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
       <!-- ===================== OUTILS CLE ===================== -->
       <TabItem x:Name="TabTools" Header="Outils de la clé">
         <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,10,0,0">

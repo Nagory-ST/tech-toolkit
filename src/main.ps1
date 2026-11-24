@@ -198,8 +198,118 @@ if ($sync.Mode -eq 'USB' -and $sync.PortableTools.Count) {
     $sync.TxtToolsInfo.Text = 'Disponible quand Tech Toolkit est lancé depuis la clé USB (START.bat sur la partition TOOLS).'
 }
 
+# --- Onglet Creer ma cle ---
+$sync.UsbChecks = @{}
+$usbGroups = New-Object System.Collections.Generic.List[string]
+foreach ($c in $sync.configs.usb) { if (-not $usbGroups.Contains($c.group)) { $usbGroups.Add($c.group) } }
+
+function Update-TKUsbSize {
+    $mb = 0; $manual = 0
+    foreach ($c in $sync.configs.usb) {
+        if (-not $sync.UsbChecks[$c.id].IsChecked) { continue }
+        if ($c.source.type -eq 'page') { $manual++ } else { $mb += [int]$c.sizeMB }
+    }
+    $sync.TxtUsbSize.Text = ('Téléchargement estimé : {0:N1} Go{1}' -f ($mb / 1024), $(if ($manual) { "  +  $manual page(s) à ouvrir" } else { '' }))
+}
+
+foreach ($g in $usbGroups) {
+    $h = New-TKText $g.ToUpper() 11 '#58A6FF' 'Bold'
+    $h.Margin = New-TKThickness 0 12 0 4
+    [void]$sync.UsbPanel.Children.Add($h)
+    foreach ($c in @($sync.configs.usb | Where-Object { $_.group -eq $g })) {
+        $row = New-Object System.Windows.Controls.DockPanel
+        $info = if ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
+        $sz = New-TKText $info 11 $(if ($c.source.type -eq 'page') { '#D29922' } else { '#8B949E' })
+        $sz.Width = 140; $sz.TextAlignment = 'Right'; $sz.VerticalAlignment = 'Center'
+        [System.Windows.Controls.DockPanel]::SetDock($sz, 'Right')
+        [void]$row.Children.Add($sz)
+        $cb = New-Object System.Windows.Controls.CheckBox
+        $cb.Content = $c.name; $cb.Tag = $c.id; $cb.IsChecked = [bool]$c.default
+        $tip = "Destination : $(if ($c.target -eq 'ventoy') { 'Ventoy' } else { 'TOOLS' })\$($c.dest)"
+        if ($c.note) { $tip += "`n$($c.note)" }
+        $cb.ToolTip = $tip
+        $cb.Add_Click({ Update-TKUsbSize })
+        [void]$row.Children.Add($cb)
+        [void]$sync.UsbPanel.Children.Add($row)
+        $sync.UsbChecks[$c.id] = $cb
+    }
+}
+
+function Update-TKUsbDisks {
+    $sync.UsbDisks = Get-TKUsbDisks
+    $sync.CmbUsbDisk.ItemsSource = $sync.UsbDisks
+    if ($sync.UsbDisks.Count) { $sync.CmbUsbDisk.SelectedIndex = 0 }
+    else {
+        $sync.TxtUsbInfo.Text = 'Aucune clé USB éligible détectée. Branche la clé puis clique sur Actualiser.'
+        $sync.ChkUsbUpdate.IsChecked = $false; $sync.ChkUsbUpdate.IsEnabled = $false
+    }
+}
+$sync.CmbUsbDisk.Add_SelectionChanged({
+    $d = $sync.CmbUsbDisk.SelectedItem
+    if (-not $d) { return }
+    $sync.TxtToolsSize.Text = [string][math]::Max(4, [math]::Min(27, [math]::Floor($d.SizeGB * 0.45)))
+    if ($d.IsKit) {
+        $sync.TxtUsbInfo.Text = 'Clé Tech Toolkit détectée : la mise à jour sans effacement est proposée.'
+        $sync.ChkUsbUpdate.IsEnabled = $true; $sync.ChkUsbUpdate.IsChecked = $true
+    } else {
+        $sync.TxtUsbInfo.Text = $(if ($d.IsVentoy) { 'Clé Ventoy sans partition TOOLS : elle sera recréée entièrement.' }
+                                elseif ($d.SizeGB -lt 16) { 'Clé trop petite : 16 Go minimum, 32 Go conseillés.' }
+                                else { 'Clé vierge ou autre contenu : elle sera entièrement effacée.' })
+        $sync.ChkUsbUpdate.IsChecked = $false; $sync.ChkUsbUpdate.IsEnabled = $false
+    }
+})
+$usbModeChanged = {
+    $upd = [bool]$sync.ChkUsbUpdate.IsChecked
+    $sync.ChkUsbVentoyUpdate.IsEnabled = $upd
+    if (-not $upd) { $sync.ChkUsbVentoyUpdate.IsChecked = $false }
+    $sync.TxtToolsSize.IsEnabled = -not $upd
+    $sync.BtnUsbCreate.Content = $(if ($upd) { 'Mettre à jour la clé' } else { 'Créer la clé' })
+}
+$sync.ChkUsbUpdate.Add_Checked($usbModeChanged)
+$sync.ChkUsbUpdate.Add_Unchecked($usbModeChanged)
+$sync.BtnUsbRefresh.Add_Click({ Update-TKUsbDisks })
+
+$sync.BtnUsbCreate.Add_Click({
+    $d = $sync.CmbUsbDisk.SelectedItem
+    if (-not $d) { Write-TKLog 'Sélectionne une clé USB.' 'WARN'; return }
+    $upd = [bool]$sync.ChkUsbUpdate.IsChecked
+    $ids = @($sync.configs.usb | Where-Object { $sync.UsbChecks[$_.id].IsChecked } | ForEach-Object { $_.id })
+    $gb = 0
+    if (-not $upd) {
+        if (-not [int]::TryParse($sync.TxtToolsSize.Text, [ref]$gb) -or $gb -lt 4 -or $gb -gt ($d.SizeGB - 8)) {
+            [void][System.Windows.MessageBox]::Show("Taille TOOLS invalide : entre 4 et $([math]::Floor($d.SizeGB - 8)) Go.", 'Tech Toolkit', 'OK', 'Warning'); return
+        }
+        if ($d.SizeGB -lt 16) { [void][System.Windows.MessageBox]::Show('Clé trop petite (16 Go minimum).', 'Tech Toolkit', 'OK', 'Warning'); return }
+        Add-Type -AssemblyName Microsoft.VisualBasic
+        $msg = "TOUT le contenu de cette clé va être effacé :`n`n    $($d.Display)`n`nTape EFFACER pour confirmer."
+        $answer = [Microsoft.VisualBasic.Interaction]::InputBox($msg, 'Tech Toolkit - création de la clé', '')
+        if ($answer -cne 'EFFACER') { Write-TKLog 'Création annulée.' 'INFO'; return }
+    } else {
+        if ([System.Windows.MessageBox]::Show("Mettre à jour la clé $($d.Display) sans effacer ses données ?", 'Tech Toolkit', 'YesNo', 'Question') -ne 'Yes') { return }
+    }
+    $sync.GridUsb.ItemsSource = $null
+    Start-TKJob -Name $(if ($upd) { 'Mise à jour de la clé' } else { 'Création de la clé' }) `
+        -ScriptBlock { param($DiskNumber, $ToolsGB, $Components, $UpdateOnly, $UpdateVentoy, $Force, $Lock)
+                       New-TKUsbKey -DiskNumber $DiskNumber -ToolsGB $ToolsGB -Components $Components -UpdateOnly $UpdateOnly -UpdateVentoy $UpdateVentoy -Force $Force -Lock $Lock } `
+        -Arguments @{ DiskNumber = [int]$d.Number; ToolsGB = $gb; Components = $ids; UpdateOnly = $upd
+                      UpdateVentoy = [bool]$sync.ChkUsbVentoyUpdate.IsChecked; Force = [bool]$sync.ChkUsbForce.IsChecked; Lock = [bool]$sync.ChkUsbLock.IsChecked } `
+        -OnDone {
+            param($r)
+            $res = @($r) | Where-Object { $_.Report } | Select-Object -Last 1
+            Update-TKUsbDisks
+            if (-not $res) { Write-TKLog 'La préparation de la clé s''est interrompue (voir les erreurs ci-dessus).' 'ERR'; return }
+            $sync.GridUsb.ItemsSource = @($res.Report)
+            if ($res.Pages.Count) {
+                $msg = "$($res.Pages.Count) élément(s) ne peuvent pas être téléchargés automatiquement. Ouvrir leurs pages de téléchargement ?`n`nLes destinations sont indiquées dans le tableau (colonne Détail)."
+                if ([System.Windows.MessageBox]::Show($msg, 'Tech Toolkit', 'YesNo', 'Information') -eq 'Yes') { foreach ($u in $res.Pages) { Start-Process $u } }
+            }
+        }
+})
+Update-TKUsbSize
+Update-TKUsbDisks
+
 # --- Boucle UI : journal, statut, fin des taches ---
-$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup)
+$sync.ActionButtons = @($sync.BtnApply, $sync.BtnUndo, $sync.BtnRefresh, $sync.BtnCheck, $sync.BtnRunCleanup, $sync.BtnUsbCreate, $sync.BtnUsbRefresh)
 $timer = New-Object System.Windows.Threading.DispatcherTimer
 $timer.Interval = [TimeSpan]::FromMilliseconds(250)
 $timer.Add_Tick({

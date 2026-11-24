@@ -6,6 +6,7 @@ Outil technicien Windows en interface graphique (WPF/PowerShell), dans l'esprit 
 |---|---|
 | **Tweaks & durcissement** | 27 réglages en 4 catégories (Confort & SAV, Confidentialité, Durcissement, Durcissement renforcé), 4 profils, état en direct, point de restauration, **annulation avec restauration des valeurs d'origine réelles** |
 | **Contrôle & nettoyage** | Contrôle sécurité du poste (antivirus, pare-feu, BitLocker, patchs, comptes, persistance, outils de prise en main à distance, proxy/hosts/DNS, disques) avec **rapport HTML**, et 14 actions de nettoyage, réparation ou antivirus |
+| **Créer ma clé** | Crée ou met à jour la clé technicien depuis l'outil : Ventoy (dernière version, GPT, Secure Boot), partition TOOLS, thème et menus, téléchargement des ISO et outils portables (`config/usb.json`), manifeste SHA256, verrouillage |
 | **Outils de la clé** | Lanceur des outils portables de la clé (`tools.json`), en mode USB uniquement |
 
 ## Lancement
@@ -18,6 +19,15 @@ irm https://raw.githubusercontent.com/Nagory-ST/tech-toolkit/main/dist/toolkit.p
 **Depuis la clé USB** : copie `dist/toolkit.ps1` et `launcher/START.bat` à la racine de la partition TOOLS, à côté de `tools.json`, puis lance `START.bat`.
 
 Dans les deux cas, l'outil demande lui-même l'élévation administrateur et se relance dans Windows PowerShell 5.1 (STA), ce que WPF exige.
+
+## Créer ma clé
+
+1. Branche une clé (32 Go conseillés) et lance l'outil (web ou local).
+2. Onglet **Créer ma clé** : choisis le disque, la taille de TOOLS et les composants.
+3. Confirme en tapant `EFFACER`. Une clé Tech Toolkit existante est détectée et proposée en **mise à jour sans effacement**.
+
+Les composants sans lien direct stable (Windows 11, WinSCP, HWiNFO…) sont marqués « téléchargement manuel » : leurs pages s'ouvrent à la fin, et la destination est indiquée dans le tableau.
+Le kit copié sur la clé (thème Ventoy, menus, scripts) vient du dossier `usb/` de ce dépôt.
 
 ## Développement
 
