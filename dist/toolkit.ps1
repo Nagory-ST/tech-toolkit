@@ -368,97 +368,32 @@ $sync.configs.tweaks = @'
 '@ | ConvertFrom-Json
 $sync.configs.usb = @'
 [
-  { "id": "iso_hirens", "group": "ISO de d\u00e9marrage", "name": "Hiren's BootCD PE", "sizeMB": 3100, "default": true,
-    "target": "ventoy", "dest": "ISO\\Rescue\\HirensBootCDPE.iso",
-    "source": { "type": "url", "url": "https://www.hirensbootcd.org/files/HBCD_PE_x64.iso" } },
-  { "id": "iso_sysrescue", "group": "ISO de d\u00e9marrage", "name": "SystemRescue", "sizeMB": 1400, "default": true,
-    "target": "ventoy", "dest": "ISO\\Rescue\\systemrescue.iso",
-    "source": { "type": "scrape", "page": "https://www.system-rescue.org/Download/", "pattern": "https://fastly-cdn\\.system-rescue\\.org/releases/[\\d\\.]+/systemrescue-[\\d\\.]+-amd64\\.iso" } },
-  { "id": "iso_rescuezilla", "group": "ISO de d\u00e9marrage", "name": "Rescuezilla (clonage)", "sizeMB": 1300, "default": true,
-    "target": "ventoy", "dest": "ISO\\Rescue\\rescuezilla.iso",
-    "source": { "type": "github", "repo": "rescuezilla/rescuezilla", "asset": ["(?i)64bit.*\\.iso$", "(?i)\\.iso$"] } },
-  { "id": "iso_memtest", "group": "ISO de d\u00e9marrage", "name": "Memtest86+ (page memtest.org)", "sizeMB": 0, "default": false,
-    "target": "ventoy", "dest": "ISO\\Rescue\\memtest86plus.iso",
-    "note": "Les binaires ne sont plus publi\u00e9s sur GitHub. Prends l'ISO 64 bits et renomme-la memtest86plus.iso. Depuis la v9.00 elle est sign\u00e9e, mais pas par Microsoft : Secure Boot peut la bloquer.",
-    "source": { "type": "page", "url": "https://www.memtest.org/" } },
-  { "id": "iso_krd", "group": "ISO de d\u00e9marrage", "name": "Kaspersky Rescue Disk", "sizeMB": 700, "default": false,
-    "note": "Lien donn\u00e9 par le support Kaspersky (version 2018). En cas d'erreur : https://www.kaspersky.fr/downloads/free-rescue-disk. Mets \u00e0 jour les signatures au d\u00e9marrage.",
-    "target": "ventoy", "dest": "ISO\\Antivirus\\krd.iso",
-    "source": { "type": "url", "url": "https://rescuedisk.s.kaspersky-labs.com/updatable/2018/krd.iso" } },
-  { "id": "iso_win11", "group": "ISO de d\u00e9marrage", "name": "Windows 11 (page Microsoft)", "sizeMB": 0, "default": true,
-    "target": "ventoy", "dest": "ISO\\Windows\\Win11_FR_x64.iso",
-    "note": "Microsoft ne fournit pas de lien direct : t\u00e9l\u00e9charge l'ISO et renomme-la Win11_FR_x64.iso.",
-    "source": { "type": "page", "url": "https://www.microsoft.com/fr-fr/software-download/windows11" } },
-
-  { "id": "t_sysinternals", "group": "Contr\u00f4le & nettoyage", "name": "Sysinternals Suite", "sizeMB": 360, "default": true,
-    "target": "tools", "dest": "Tools\\20_Sysinternals", "extract": true, "check": "Tools\\20_Sysinternals\\Autoruns64.exe",
-    "source": { "type": "url", "url": "https://download.sysinternals.com/files/SysinternalsSuite.zip" } },
-  { "id": "t_adwcleaner", "group": "Contr\u00f4le & nettoyage", "name": "AdwCleaner", "sizeMB": 10, "default": true,
-    "target": "tools", "dest": "Tools\\50_Nettoyage\\adwcleaner.exe",
-    "source": { "type": "url", "url": "https://adwcleaner.malwarebytes.com/adwcleaner?channel=release" } },
-  { "id": "t_msert", "group": "Contr\u00f4le & nettoyage", "name": "Microsoft Safety Scanner", "sizeMB": 200, "default": true, "refresh": true,
-    "note": "Expire au bout de 10 jours : toujours re-t\u00e9l\u00e9charg\u00e9 lors d'une mise \u00e0 jour.",
-    "target": "tools", "dest": "Tools\\50_Nettoyage\\MSERT.exe",
-    "source": { "type": "url", "url": "https://go.microsoft.com/fwlink/?LinkId=212732" } },
-  { "id": "t_esetonline", "group": "Contr\u00f4le & nettoyage", "name": "ESET Online Scanner", "sizeMB": 10, "default": true,
-    "target": "tools", "dest": "Tools\\50_Nettoyage\\esetonlinescanner.exe",
-    "source": { "type": "url", "url": "https://download.eset.com/com/eset/tools/online_scanner/latest/esetonlinescanner.exe" } },
-  { "id": "t_hayabusa", "group": "Contr\u00f4le & nettoyage", "name": "Hayabusa (analyse des journaux)", "sizeMB": 40, "default": true,
-    "target": "tools", "dest": "Tools\\60_Controle\\hayabusa", "extract": true, "check": "Tools\\60_Controle\\hayabusa\\hayabusa.exe",
-    "renameFrom": "hayabusa-*-win-x64.exe", "renameTo": "hayabusa.exe",
-    "source": { "type": "github", "repo": "Yamato-Security/hayabusa", "asset": ["(?i)^hayabusa-[\\d\\.]+-win-x64\\.zip$", "(?i)win-x64\\.zip$"] } },
-  { "id": "t_eek", "group": "Contr\u00f4le & nettoyage", "name": "Emsisoft Emergency Kit (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\50_Nettoyage\\EEK",
-    "note": "Auto-extractible : choisis Tools\\50_Nettoyage\\EEK comme dossier de destination.",
-    "source": { "type": "page", "url": "https://www.emsisoft.com/fr/emergency-kit/" } },
-
-  { "id": "t_putty", "group": "R\u00e9seau", "name": "PuTTY", "sizeMB": 4, "default": true,
-    "target": "tools", "dest": "Tools\\10_Reseau\\putty.exe",
-    "source": { "type": "url", "url": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe" } },
-  { "id": "t_iperf3", "group": "R\u00e9seau", "name": "iperf3", "sizeMB": 5, "default": true,
-    "target": "tools", "dest": "Tools\\10_Reseau\\iperf3", "extract": true, "check": "Tools\\10_Reseau\\iperf3\\iperf3.exe",
-    "source": { "type": "github", "repo": "ar51an/iperf3-win-builds", "asset": ["(?i)^iperf-[\\d\\.]+-win64\\.zip$", "(?i)win64.*\\.zip$"] } },
-  { "id": "t_winscp", "group": "R\u00e9seau", "name": "WinSCP portable (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\10_Reseau\\WinSCP",
-    "source": { "type": "page", "url": "https://winscp.net/eng/downloads.php" } },
-  { "id": "t_wireshark", "group": "R\u00e9seau", "name": "Wireshark portable (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\10_Reseau\\WiresharkPortable64",
-    "source": { "type": "page", "url": "https://www.wireshark.org/download.html" } },
-  { "id": "t_ipscanner", "group": "R\u00e9seau", "name": "Advanced IP Scanner (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\10_Reseau\\AdvancedIPScanner",
-    "source": { "type": "page", "url": "https://www.advanced-ip-scanner.com/fr/" } },
-
-  { "id": "t_bsv", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "BlueScreenView", "sizeMB": 1, "default": true,
-    "target": "tools", "dest": "Tools\\30_Diag-Hardware", "extract": true, "check": "Tools\\30_Diag-Hardware\\BlueScreenView.exe",
-    "source": { "type": "url", "url": "https://www.nirsoft.net/utils/bluescreenview-x64.zip" } },
-  { "id": "t_produkey", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "ProduKey", "sizeMB": 1, "default": true,
-    "target": "tools", "dest": "Tools\\40_Recovery", "extract": true, "check": "Tools\\40_Recovery\\ProduKey.exe",
-    "source": { "type": "url", "url": "https://www.nirsoft.net/utils/produkey-x64.zip" } },
-  { "id": "t_hwinfo", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "HWiNFO portable (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\30_Diag-Hardware\\HWiNFO",
-    "source": { "type": "page", "url": "https://www.hwinfo.com/download/" } },
-  { "id": "t_cdi", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "CrystalDiskInfo portable (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\30_Diag-Hardware\\CrystalDiskInfo",
-    "source": { "type": "page", "url": "https://crystalmark.info/en/software/crystaldiskinfo/" } },
-  { "id": "t_testdisk", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "TestDisk / PhotoRec (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Tools\\40_Recovery\\testdisk",
-    "source": { "type": "page", "url": "https://www.cgsecurity.org/wiki/TestDisk_Download" } },
-
-  { "id": "t_npp", "group": "Syst\u00e8me", "name": "Notepad++ portable", "sizeMB": 7, "default": true,
-    "target": "tools", "dest": "Tools\\00_Base\\Notepad++", "extract": true, "check": "Tools\\00_Base\\Notepad++\\notepad++.exe",
-    "source": { "type": "github", "repo": "notepad-plus-plus/notepad-plus-plus", "asset": ["(?i)portable\\.x64\\.zip$"] } },
-  { "id": "t_sdio", "group": "Syst\u00e8me", "name": "Snappy Driver Installer Origin (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "Drivers\\SDIO\\SDIO_x64.exe",
-    "note": "Version Origin uniquement. Renomme l'ex\u00e9cutable SDIO_x64.exe.",
-    "source": { "type": "page", "url": "https://www.glenn.delahoy.com/snappy-driver-installer-origin/" } },
-
-  { "id": "ia_kobold", "group": "IA hors ligne", "name": "KoboldCpp (CPU)", "sizeMB": 100, "default": false,
-    "target": "tools", "dest": "IA\\bin\\koboldcpp.exe",
-    "source": { "type": "github", "repo": "LostRuins/koboldcpp", "asset": ["(?i)^koboldcpp-nocuda\\.exe$", "(?i)^koboldcpp\\.exe$"] } },
-  { "id": "ia_model", "group": "IA hors ligne", "name": "Mod\u00e8le GGUF 3-4B Q4 (page)", "sizeMB": 0, "default": false,
-    "target": "tools", "dest": "IA\\models",
-    "note": "Choisis un mod\u00e8le r\u00e9cent en Q4_K_M (2-3 Go) et d\u00e9pose le .gguf dans IA\\models.",
-    "source": { "type": "page", "url": "https://huggingface.co/models?library=gguf&sort=trending" } }
+  {"id": "iso_hirens", "group": "ISO de d\u00e9marrage", "name": "Hiren's BootCD PE", "sizeMB": 3100, "default": true, "target": "ventoy", "dest": "ISO\\Rescue\\HirensBootCDPE.iso", "source": {"type": "url", "url": "https://www.hirensbootcd.org/files/HBCD_PE_x64.iso"}},
+  {"id": "iso_sysrescue", "group": "ISO de d\u00e9marrage", "name": "SystemRescue", "sizeMB": 1400, "default": true, "target": "ventoy", "dest": "ISO\\Rescue\\systemrescue.iso", "source": {"type": "scrape", "page": "https://www.system-rescue.org/Download/", "pattern": "https://fastly-cdn\\.system-rescue\\.org/releases/[\\d\\.]+/systemrescue-[\\d\\.]+-amd64\\.iso"}},
+  {"id": "iso_rescuezilla", "group": "ISO de d\u00e9marrage", "name": "Rescuezilla (clonage)", "sizeMB": 1300, "default": true, "target": "ventoy", "dest": "ISO\\Rescue\\rescuezilla.iso", "source": {"type": "github", "repo": "rescuezilla/rescuezilla", "asset": ["(?i)64bit.*\\.iso$", "(?i)\\.iso$"]}},
+  {"id": "iso_memtest", "group": "ISO de d\u00e9marrage", "name": "Memtest86+ (page memtest.org)", "sizeMB": 0, "default": false, "target": "ventoy", "dest": "ISO\\Rescue\\memtest86plus.iso", "note": "Les binaires ne sont plus publi\u00e9s sur GitHub. Prends l'ISO 64 bits et renomme-la memtest86plus.iso. Depuis la v9.00 elle est sign\u00e9e, mais pas par Microsoft : Secure Boot peut la bloquer.", "source": {"type": "page", "url": "https://www.memtest.org/"}, "local": "mt86plus*64*"},
+  {"id": "iso_krd", "group": "ISO de d\u00e9marrage", "name": "Kaspersky Rescue Disk", "sizeMB": 1050, "default": false, "note": "Version 26 (2026). Kaspersky ne publie pas de lien direct : t\u00e9l\u00e9charge krd.iso depuis la page, l'outil le r\u00e9cup\u00e8re dans T\u00e9l\u00e9chargements.", "target": "ventoy", "dest": "ISO\\Antivirus\\krd.iso", "source": {"type": "page", "url": "https://www.kaspersky.fr/downloads/free-rescue-disk"}, "local": "krd*.iso"},
+  {"id": "iso_win11", "group": "ISO de d\u00e9marrage", "name": "Windows 11 (page Microsoft)", "sizeMB": 0, "default": true, "target": "ventoy", "dest": "ISO\\Windows\\Win11_FR_x64.iso", "note": "Microsoft ne fournit pas de lien direct : t\u00e9l\u00e9charge l'ISO, l'outil la r\u00e9cup\u00e8re dans T\u00e9l\u00e9chargements et la renomme.", "source": {"type": "page", "url": "https://www.microsoft.com/fr-fr/software-download/windows11"}, "local": "Win11*.iso"},
+  {"id": "t_sysinternals", "group": "Contr\u00f4le & nettoyage", "name": "Sysinternals Suite", "sizeMB": 360, "default": true, "target": "tools", "dest": "Tools\\20_Sysinternals", "extract": true, "check": "Tools\\20_Sysinternals\\Autoruns64.exe", "source": {"type": "url", "url": "https://download.sysinternals.com/files/SysinternalsSuite.zip"}},
+  {"id": "t_adwcleaner", "group": "Contr\u00f4le & nettoyage", "name": "AdwCleaner", "sizeMB": 10, "default": true, "target": "tools", "dest": "Tools\\50_Nettoyage\\adwcleaner.exe", "source": {"type": "url", "url": "https://adwcleaner.malwarebytes.com/adwcleaner?channel=release"}},
+  {"id": "t_msert", "group": "Contr\u00f4le & nettoyage", "name": "Microsoft Safety Scanner", "sizeMB": 200, "default": true, "refresh": true, "note": "Expire au bout de 10 jours : toujours re-t\u00e9l\u00e9charg\u00e9 lors d'une mise \u00e0 jour.", "target": "tools", "dest": "Tools\\50_Nettoyage\\MSERT.exe", "source": {"type": "url", "url": "https://go.microsoft.com/fwlink/?LinkId=212732"}},
+  {"id": "t_esetonline", "group": "Contr\u00f4le & nettoyage", "name": "ESET Online Scanner", "sizeMB": 10, "default": true, "target": "tools", "dest": "Tools\\50_Nettoyage\\esetonlinescanner.exe", "source": {"type": "url", "url": "https://download.eset.com/com/eset/tools/online_scanner/latest/esetonlinescanner.exe"}},
+  {"id": "t_hayabusa", "group": "Contr\u00f4le & nettoyage", "name": "Hayabusa (analyse des journaux)", "sizeMB": 40, "default": true, "target": "tools", "dest": "Tools\\60_Controle\\hayabusa", "extract": true, "check": "Tools\\60_Controle\\hayabusa\\hayabusa.exe", "renameFrom": "hayabusa-*-win-x64.exe", "renameTo": "hayabusa.exe", "source": {"type": "github", "repo": "Yamato-Security/hayabusa", "asset": ["(?i)^hayabusa-[\\d\\.]+-win-x64\\.zip$", "(?i)win-x64\\.zip$"]}},
+  {"id": "t_eek", "group": "Contr\u00f4le & nettoyage", "name": "Emsisoft Emergency Kit (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\50_Nettoyage\\EEK", "note": "Auto-extractible : choisis Tools\\50_Nettoyage\\EEK comme dossier de destination.", "source": {"type": "page", "url": "https://www.emsisoft.com/fr/emergency-kit/"}},
+  {"id": "t_putty", "group": "R\u00e9seau", "name": "PuTTY", "sizeMB": 4, "default": true, "target": "tools", "dest": "Tools\\10_Reseau\\putty.exe", "source": {"type": "url", "url": "https://the.earth.li/~sgtatham/putty/latest/w64/putty.exe"}},
+  {"id": "t_iperf3", "group": "R\u00e9seau", "name": "iperf3", "sizeMB": 5, "default": true, "target": "tools", "dest": "Tools\\10_Reseau\\iperf3", "extract": true, "check": "Tools\\10_Reseau\\iperf3\\iperf3.exe", "source": {"type": "github", "repo": "ar51an/iperf3-win-builds", "asset": ["(?i)^iperf-[\\d\\.]+-win64\\.zip$", "(?i)win64.*\\.zip$"]}},
+  {"id": "t_winscp", "group": "R\u00e9seau", "name": "WinSCP portable (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\10_Reseau\\WinSCP", "source": {"type": "page", "url": "https://winscp.net/eng/downloads.php"}, "local": "WinSCP-*-Portable.zip", "extract": true, "check": "Tools\\10_Reseau\\WinSCP\\WinSCP.exe"},
+  {"id": "t_wireshark", "group": "R\u00e9seau", "name": "Wireshark portable (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\10_Reseau\\WiresharkPortable64", "source": {"type": "page", "url": "https://www.wireshark.org/download.html"}},
+  {"id": "t_ipscanner", "group": "R\u00e9seau", "name": "Advanced IP Scanner (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\10_Reseau\\AdvancedIPScanner", "source": {"type": "page", "url": "https://www.advanced-ip-scanner.com/fr/"}},
+  {"id": "t_bsv", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "BlueScreenView", "sizeMB": 1, "default": true, "target": "tools", "dest": "Tools\\30_Diag-Hardware", "extract": true, "check": "Tools\\30_Diag-Hardware\\BlueScreenView.exe", "source": {"type": "url", "url": "https://www.nirsoft.net/utils/bluescreenview-x64.zip"}},
+  {"id": "t_produkey", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "ProduKey", "sizeMB": 1, "default": true, "target": "tools", "dest": "Tools\\40_Recovery", "extract": true, "check": "Tools\\40_Recovery\\ProduKey.exe", "source": {"type": "url", "url": "https://www.nirsoft.net/utils/produkey-x64.zip"}},
+  {"id": "t_hwinfo", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "HWiNFO portable (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\30_Diag-Hardware\\HWiNFO", "source": {"type": "page", "url": "https://www.hwinfo.com/download/"}, "local": "hwi*.zip", "extract": true, "check": "Tools\\30_Diag-Hardware\\HWiNFO\\HWiNFO64.exe"},
+  {"id": "t_cdi", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "CrystalDiskInfo portable (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\30_Diag-Hardware\\CrystalDiskInfo", "source": {"type": "page", "url": "https://crystalmark.info/en/software/crystaldiskinfo/"}, "local": "CrystalDiskInfo*.zip", "extract": true, "check": "Tools\\30_Diag-Hardware\\CrystalDiskInfo\\DiskInfo64.exe"},
+  {"id": "t_testdisk", "group": "Diagnostic & r\u00e9cup\u00e9ration", "name": "TestDisk / PhotoRec (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Tools\\40_Recovery\\testdisk", "source": {"type": "page", "url": "https://www.cgsecurity.org/wiki/TestDisk_Download"}, "local": "testdisk-*win64.zip", "extract": true, "check": "Tools\\40_Recovery\\testdisk\\testdisk_win.exe"},
+  {"id": "t_npp", "group": "Syst\u00e8me", "name": "Notepad++ portable", "sizeMB": 7, "default": true, "target": "tools", "dest": "Tools\\00_Base\\Notepad++", "extract": true, "check": "Tools\\00_Base\\Notepad++\\notepad++.exe", "source": {"type": "github", "repo": "notepad-plus-plus/notepad-plus-plus", "asset": ["(?i)portable\\.x64\\.zip$"]}},
+  {"id": "t_sdio", "group": "Syst\u00e8me", "name": "Snappy Driver Installer Origin (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "Drivers\\SDIO", "note": "Version Origin uniquement (zip). L'outil le r\u00e9cup\u00e8re dans T\u00e9l\u00e9chargements.", "source": {"type": "page", "url": "https://www.glenn.delahoy.com/snappy-driver-installer-origin/"}, "local": "SDIO_*.zip", "extract": true, "check": "Drivers\\SDIO\\SDIO_x64.exe", "renameFrom": "SDIO_x64_R*.exe", "renameTo": "SDIO_x64.exe"},
+  {"id": "ia_kobold", "group": "IA hors ligne", "name": "KoboldCpp (CPU)", "sizeMB": 100, "default": false, "target": "tools", "dest": "IA\\bin\\koboldcpp.exe", "source": {"type": "github", "repo": "LostRuins/koboldcpp", "asset": ["(?i)^koboldcpp-nocuda\\.exe$", "(?i)^koboldcpp\\.exe$"]}},
+  {"id": "ia_model", "group": "IA hors ligne", "name": "Mod\u00e8le GGUF 3-4B Q4 (page)", "sizeMB": 0, "default": false, "target": "tools", "dest": "IA\\models", "note": "Choisis un mod\u00e8le r\u00e9cent en Q4_K_M (2-3 Go) et d\u00e9pose le .gguf dans IA\\models.", "source": {"type": "page", "url": "https://huggingface.co/models?library=gguf&sort=trending"}}
 ]
 '@ | ConvertFrom-Json
 # ---------------------------------------------------------------- xaml
@@ -1507,7 +1442,14 @@ function Install-TKUsbComponent {
     $check = if ($C.check) { Join-Path $base $C.check } else { $dest }
     $res = { param($r, $d) [pscustomobject]@{ Composant = $C.name; Resultat = $r; Detail = $d } }
 
-    if ($C.source.type -eq 'page') {
+    # Fichier deja telecharge par le technicien dans son dossier Telechargements ?
+    $local = $null
+    if ($C.local) {
+        $dl = Join-Path $env:USERPROFILE 'Downloads'
+        $local = Get-ChildItem -LiteralPath $dl -Filter $C.local -File -ErrorAction SilentlyContinue |
+                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    }
+    if ($C.source.type -eq 'page' -and -not $local) {
         return (& $res 'Manuel' "Page ouverte, à déposer dans $dest")
     }
     if ((Test-Path -LiteralPath $check) -and -not $Force -and -not $C.refresh) {
@@ -1515,7 +1457,19 @@ function Install-TKUsbComponent {
     }
 
     $url = $C.source.url; $name = $null; $ver = ''
-    if ($C.source.type -eq 'github') {
+    if ($local) {
+        $name = $local.Name
+        $isZip = [bool]$C.extract -or ($name -match '\.zip$')
+        if (-not $isZip) {
+            # Copie directe vers la cle (pas de detour par le dossier temporaire)
+            Set-TKStatus "Copie de $name depuis Téléchargements..."
+            New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+            Copy-Item -LiteralPath $local.FullName -Destination $dest -Force
+            Write-TKLog "$($C.name) : copié depuis Téléchargements ($name)" 'OK'
+            return (& $res 'OK' "Téléchargements\$name -> $dest")
+        }
+    }
+    elseif ($C.source.type -eq 'github') {
         $a = Resolve-TKGithubAsset -Repo $C.source.repo -Patterns @($C.source.asset)
         $url = $a.Url; $name = $a.Name; $ver = $a.Version
     }
@@ -1530,7 +1484,8 @@ function Install-TKUsbComponent {
     $isZip = [bool]$C.extract -or ($name -match '\.zip$')
     $ext = if ($isZip) { '.zip' } elseif ($name) { [IO.Path]::GetExtension($name) } else { [IO.Path]::GetExtension($dest) }
     $tmp = Join-Path $Work ($C.id + $ext)
-    Get-TKDownload -Url $url -OutFile $tmp -Label $C.name
+    if ($local) { Copy-Item -LiteralPath $local.FullName -Destination $tmp -Force; $ver = "(Téléchargements\$name)" }
+    else { Get-TKDownload -Url $url -OutFile $tmp -Label $C.name }
 
     if ($isZip) {
         $x = Expand-TKArchive -Zip $tmp -To (Join-Path $Work "$($C.id)_x")
@@ -1860,7 +1815,7 @@ foreach ($g in $usbGroups) {
     [void]$sync.UsbPanel.Children.Add($h)
     foreach ($c in @($sync.configs.usb | Where-Object { $_.group -eq $g })) {
         $row = New-Object System.Windows.Controls.DockPanel
-        $info = if ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
+        $info = if ($c.source.type -eq 'page' -and $c.local) { 'manuel / Téléchargements' } elseif ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
         $sz = New-TKText $info 11 $(if ($c.source.type -eq 'page') { '#D29922' } else { '#8B949E' })
         $sz.Width = 140; $sz.TextAlignment = 'Right'; $sz.VerticalAlignment = 'Center'
         [System.Windows.Controls.DockPanel]::SetDock($sz, 'Right')
