@@ -236,13 +236,20 @@ foreach ($g in $usbGroups) {
 }
 
 function Update-TKUsbDisks {
-    $sync.UsbDisks = Get-TKUsbDisks
+    $found = @(Get-TKUsbDisks)
+    $sync.UsbDisks = @($found | Where-Object Eligible)
+    $excluded = @($found | Where-Object { -not $_.Eligible })
     $sync.CmbUsbDisk.ItemsSource = $sync.UsbDisks
     if ($sync.UsbDisks.Count) { $sync.CmbUsbDisk.SelectedIndex = 0 }
     else {
-        $sync.TxtUsbInfo.Text = 'Aucune clé USB éligible détectée. Branche la clé puis clique sur Actualiser.'
+        $msg = 'Aucune clé USB éligible détectée. Branche la clé puis clique sur Actualiser.'
+        if ($excluded.Count) {
+            $msg += "`nExclu(s) : " + (($excluded | ForEach-Object { "$($_.Display) : $($_.Raison)" }) -join ' ; ')
+        }
+        $sync.TxtUsbInfo.Text = $msg
         $sync.ChkUsbUpdate.IsChecked = $false; $sync.ChkUsbUpdate.IsEnabled = $false
     }
+    foreach ($e in $excluded) { Write-TKLog "Disque USB exclu : $($e.Display) ($($e.Raison))" 'WARN' }
 }
 $sync.CmbUsbDisk.Add_SelectionChanged({
     $d = $sync.CmbUsbDisk.SelectedItem

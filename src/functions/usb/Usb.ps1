@@ -3,23 +3,34 @@
 ################################################################################
 
 function Get-TKUsbDisks {
-    <# Disques USB eligibles : jamais le disque systeme/boot, jamais la cle qui execute l'outil #>
+    <# Disques USB : Eligible = $true seulement si ce n'est ni le disque systeme/boot, ni le disque qui execute l'outil.
+       Les disques USB exclus sont renvoyes aussi (Eligible = $false + Raison) pour pouvoir l'expliquer. #>
     $self = $null
     if ($sync.Root) {
         try { $self = (Get-Partition -DriveLetter ((Split-Path $sync.Root -Qualifier).TrimEnd(':')) -ErrorAction Stop).DiskNumber } catch {}
     }
-    @(Get-Disk | Where-Object { $_.BusType -eq 'USB' -and -not $_.IsBoot -and -not $_.IsSystem -and $_.Number -ne $self -and $_.Size -gt 0 } |
-        ForEach-Object {
-            $labels = @(Get-Partition -DiskNumber $_.Number -ErrorAction SilentlyContinue | Get-Volume -ErrorAction SilentlyContinue | ForEach-Object { $_.FileSystemLabel })
-            [pscustomobject]@{
-                Number   = $_.Number
-                Name     = $_.FriendlyName
-                SizeGB   = [math]::Round($_.Size / 1GB, 1)
-                IsKit    = ($labels -contains 'Ventoy') -and ($labels -contains 'TOOLS')
-                IsVentoy = ($labels -contains 'Ventoy')
-                Display  = ('Disque {0}  -  {1}  -  {2} Go' -f $_.Number, $_.FriendlyName, [math]::Round($_.Size / 1GB, 1))
-            }
-        })
+    $all = @(Get-Disk -ErrorAction SilentlyContinue)
+    Write-TKLog ("Détection des disques : " + (($all | ForEach-Object { "{0}:{1}/{2}" -f $_.Number, $_.FriendlyName, $_.BusType }) -join ', ') + $(if ($null -ne $self) { "  (outil lancé depuis le disque $self)" } else { '' })) 'INFO'
+    foreach ($d in $all) {
+        # BusType peut remonter en texte ('USB') ou en valeur CIM brute (7 = USB selon MSFT_Disk)
+        $isUsb = ("$($d.BusType)" -eq 'USB') -or ("$($d.BusType)" -eq '7')
+        if (-not $isUsb -or $d.Size -le 0) { continue }
+        $reason = $null
+        if ($d.IsBoot -or $d.IsSystem) { $reason = 'disque système' }
+        elseif ($null -ne $self -and $d.Number -eq $self) { $reason = "l'outil est lancé depuis ce disque ($($sync.Root))" }
+        $labels = @(Get-Partition -DiskNumber $d.Number -ErrorAction SilentlyContinue | Get-Volume -ErrorAction SilentlyContinue | ForEach-Object { $_.FileSystemLabel })
+        $size = [math]::Round($d.Size / 1GB, 1)
+        [pscustomobject]@{
+            Number   = $d.Number
+            Name     = $d.FriendlyName
+            SizeGB   = $size
+            IsKit    = ($labels -contains 'Ventoy') -and ($labels -contains 'TOOLS')
+            IsVentoy = ($labels -contains 'Ventoy')
+            Eligible = -not $reason
+            Raison   = $reason
+            Display  = ('Disque {0}  -  {1}  -  {2} Go' -f $d.Number, $d.FriendlyName, $size)
+        }
+    }
 }
 
 function Get-TKHttp {
