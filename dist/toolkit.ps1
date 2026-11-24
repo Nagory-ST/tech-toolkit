@@ -1617,7 +1617,9 @@ function New-TKUsbKey {
     Copy-TKTree -From (Join-Path $src 'usb\TOOLS') -To $T -KeepIfExists @('tools.json', 'Deploy\PostInstall\postinstall.ps1')
     Copy-Item -LiteralPath (Join-Path $src 'dist\toolkit.ps1') -Destination $T -Force
     Copy-Item -LiteralPath (Join-Path $src 'launcher\START.bat') -Destination $T -Force
-    $report.Add([pscustomobject]@{ Composant = 'Kit Tech Toolkit'; Resultat = 'OK'; Detail = 'thème Ventoy, menus, scripts, toolkit.ps1' })
+    $exe = Join-Path $src 'launcher\TechToolkit.exe'
+    if (Test-Path -LiteralPath $exe) { Copy-Item -LiteralPath $exe -Destination $T -Force }
+    $report.Add([pscustomobject]@{ Composant = 'Kit Tech Toolkit'; Resultat = 'OK'; Detail = 'thème Ventoy, menus, scripts, toolkit.ps1, TechToolkit.exe' })
 
     # 4. Composants
     $list = @($sync.configs.usb | Where-Object { $Components -contains $_.id })

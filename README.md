@@ -16,7 +16,12 @@ Outil technicien Windows en interface graphique (WPF/PowerShell), dans l'esprit 
 irm https://raw.githubusercontent.com/Nagory-ST/tech-toolkit/main/dist/toolkit.ps1 | iex
 ```
 
-**Depuis la clé USB** : copie `dist/toolkit.ps1` et `launcher/START.bat` à la racine de la partition TOOLS, à côté de `tools.json`, puis lance `START.bat`.
+**Depuis la clé USB** : double-clic sur **`TechToolkit.exe`** à la racine de la partition TOOLS (une invite UAC, puis l'interface s'ouvre en mode clé avec l'onglet « Outils de la clé »). `START.bat` reste là en secours. « Créer ma clé » copie les deux.
+
+`TechToolkit.exe` est un simple lanceur (`launcher/TechToolkit.cs`, ~40 lignes) : il lance `toolkit.ps1` en administrateur, rien de plus. Pour le recompiler sous Windows :
+```powershell
+& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /target:winexe /win32icon:usb\TOOLS\toolkit.ico /r:System.Windows.Forms.dll /out:launcher\TechToolkit.exe launcher\TechToolkit.cs
+```
 
 Dans les deux cas, l'outil demande lui-même l'élévation administrateur et se relance dans Windows PowerShell 5.1 (STA), ce que WPF exige.
 
