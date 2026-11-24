@@ -218,7 +218,7 @@ foreach ($g in $usbGroups) {
     [void]$sync.UsbPanel.Children.Add($h)
     foreach ($c in @($sync.configs.usb | Where-Object { $_.group -eq $g })) {
         $row = New-Object System.Windows.Controls.DockPanel
-        $info = if ($c.source.type -eq 'page' -and $c.local) { 'manuel / Téléchargements' } elseif ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
+        $info = if ($c.source.type -eq 'page') { 'téléchargement manuel' } elseif ($c.sizeMB -ge 1000) { '{0:N1} Go' -f ($c.sizeMB / 1024) } else { "$($c.sizeMB) Mo" }
         $sz = New-TKText $info 11 $(if ($c.source.type -eq 'page') { '#D29922' } else { '#8B949E' })
         $sz.Width = 140; $sz.TextAlignment = 'Right'; $sz.VerticalAlignment = 'Center'
         [System.Windows.Controls.DockPanel]::SetDock($sz, 'Right')

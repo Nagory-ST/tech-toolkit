@@ -179,14 +179,7 @@ function Install-TKUsbComponent {
     $check = if ($C.check) { Join-Path $base $C.check } else { $dest }
     $res = { param($r, $d) [pscustomobject]@{ Composant = $C.name; Resultat = $r; Detail = $d } }
 
-    # Fichier deja telecharge par le technicien dans son dossier Telechargements ?
-    $local = $null
-    if ($C.local) {
-        $dl = Join-Path $env:USERPROFILE 'Downloads'
-        $local = Get-ChildItem -LiteralPath $dl -Filter $C.local -File -ErrorAction SilentlyContinue |
-                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    }
-    if ($C.source.type -eq 'page' -and -not $local) {
+    if ($C.source.type -eq 'page') {
         return (& $res 'Manuel' "Page ouverte, à déposer dans $dest")
     }
     if ((Test-Path -LiteralPath $check) -and -not $Force -and -not $C.refresh) {
@@ -194,19 +187,7 @@ function Install-TKUsbComponent {
     }
 
     $url = $C.source.url; $name = $null; $ver = ''
-    if ($local) {
-        $name = $local.Name
-        $isZip = [bool]$C.extract -or ($name -match '\.zip$')
-        if (-not $isZip) {
-            # Copie directe vers la cle (pas de detour par le dossier temporaire)
-            Set-TKStatus "Copie de $name depuis Téléchargements..."
-            New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
-            Copy-Item -LiteralPath $local.FullName -Destination $dest -Force
-            Write-TKLog "$($C.name) : copié depuis Téléchargements ($name)" 'OK'
-            return (& $res 'OK' "Téléchargements\$name -> $dest")
-        }
-    }
-    elseif ($C.source.type -eq 'github') {
+    if ($C.source.type -eq 'github') {
         $a = Resolve-TKGithubAsset -Repo $C.source.repo -Patterns @($C.source.asset)
         $url = $a.Url; $name = $a.Name; $ver = $a.Version
     }
@@ -221,8 +202,7 @@ function Install-TKUsbComponent {
     $isZip = [bool]$C.extract -or ($name -match '\.zip$')
     $ext = if ($isZip) { '.zip' } elseif ($name) { [IO.Path]::GetExtension($name) } else { [IO.Path]::GetExtension($dest) }
     $tmp = Join-Path $Work ($C.id + $ext)
-    if ($local) { Copy-Item -LiteralPath $local.FullName -Destination $tmp -Force; $ver = "(Téléchargements\$name)" }
-    else { Get-TKDownload -Url $url -OutFile $tmp -Label $C.name }
+    Get-TKDownload -Url $url -OutFile $tmp -Label $C.name
 
     if ($isZip) {
         $x = Expand-TKArchive -Zip $tmp -To (Join-Path $Work "$($C.id)_x")
