@@ -93,7 +93,9 @@ function Expand-TKArchive {
     <# Extrait un zip et renvoie le dossier utile (descend si le zip contient un seul dossier) #>
     param([string]$Zip, [string]$To)
     if (Test-Path -LiteralPath $To) { Remove-Item -LiteralPath $To -Recurse -Force }
-    Expand-Archive -LiteralPath $Zip -DestinationPath $To -Force
+    # .NET plutot qu'Expand-Archive : plus rapide, et Expand-Archive (PS 5.1) echoue sur les chemins courts 8.3
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($Zip, $To)
     $dir = $To
     while ($true) {
         $items = @(Get-ChildItem -LiteralPath $dir -Force)
@@ -245,7 +247,8 @@ function New-TKUsbKey {
     param([int]$DiskNumber, [int]$ToolsGB, [string[]]$Components, [bool]$UpdateOnly, [bool]$UpdateVentoy, [bool]$Force, [bool]$Lock)
     $report = New-Object System.Collections.Generic.List[object]
     $pages = New-Object System.Collections.Generic.List[string]
-    $work = Join-Path $env:TEMP 'TechToolkit\usb'
+    # Pas %TEMP% : avec un nom de profil accentué (Kévin), Windows le donne en chemin court 8.3 (KVIN~1)
+    $work = Join-Path $sync.DataDir 'work\usb'
     New-Item -ItemType Directory -Path $work -Force | Out-Null
 
     # Garde-fous (re-verifies ici, juste avant d'ecrire)
